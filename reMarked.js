@@ -1,6 +1,6 @@
 /**
 * Copyright (c) 2012, Leon Sorokin
-* All rights reserved.
+* All rights reserved. (MIT Licensed)
 *
 * reMarked.js - DOM > markdown
 */
