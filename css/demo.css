@@ -43,3 +43,9 @@
 #nav li.active {
 	font-weight: bold;
 }
+
+.ribbon {
+	position: fixed;
+	top: 0;
+	right: 0;
+}
