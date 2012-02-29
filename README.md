@@ -10,7 +10,6 @@ A project similar to [Markdownify](http://milianw.de/projects/markdownify/) but 
 ### Usage
 
 ``` js
-
 // optional options w/defaults
 var options = {
     link_list:	false,		// render links as references, create link list as appendix
