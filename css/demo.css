@@ -1,0 +1,45 @@
+.markdown-body {
+	margin: 20px;
+}
+
+.markdown-body,
+#remarked {
+	margin-left: 230px;
+}
+
+#remarked {
+	font-family: "Courier New", Courier, monospace;
+	font-size: 10pt;
+}
+
+#side_panel {
+	position: fixed;
+	top: 0;
+	left: 0;
+	margin-top: 50px;
+	padding: 10px;
+}
+
+#side_panel h3 {
+	margin: 5px;
+}
+
+#btn_remark {
+	font-weight: bold;
+	padding: 5px 10px;
+	margin-left: 30px;
+}
+
+#nav {
+	line-height: 1.75em;
+	padding-left: 30px;
+}
+
+#nav li:hover {
+	font-weight: bold;
+	cursor: pointer;
+}
+
+#nav li.active {
+	font-weight: bold;
+}
