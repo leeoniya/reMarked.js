@@ -84,6 +84,11 @@ reMarked = function(opts) {
 	}
 
 	this.render = function(ctr) {
+		if (typeof ctr == "string") {
+			var htmlstr = ctr;
+			ctr = document.createElement("div");
+			ctr.innerHTML = htmlstr;
+		}
 		var s = new lib.tag(ctr, null, 0);
 		var re = s.rend().replace(/^[\t ]+\n/gm, "\n");
 		if (cfg.link_list) {
