@@ -22,6 +22,7 @@ var options = {
     emph_char:	"*",        // char used for strong and em
     gfm_tbls:	true,       // markdown-extra tables
     tbl_edges:	false,      // show side edges on tables
+    hash_lnks:	false,      // anchors w/hash hrefs as links
 }
 
 var reMarker = new reMarked(options);
