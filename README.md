@@ -19,7 +19,7 @@ var options = {
     li_bullet:	"*",        // list item bullet style
     hr_char:	"-",        // hr style
     indnt_str:	"    ",     // indentation string
-    emph_char:	"*_"[0],    // char used for strong and em
+    emph_char:	"*",        // char used for strong and em
     gfm_tbls:	true,       // markdown-extra tables
     tbl_edges:	false,      // show side edges on tables
 }
