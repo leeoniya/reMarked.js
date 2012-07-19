@@ -164,7 +164,7 @@ reMarked = function(opts) {
 						// only ouput when has an adjacent inline elem
 						var prev = this.e.childNodes[i-1],
 							next = this.e.childNodes[i+1];
-						if (!nodeName(prev).match(inlRe) || !nodeName(next).match(inlRe))
+						if (prev && !nodeName(prev).match(inlRe) || next && !nodeName(next).match(inlRe))
 							continue;
 					}
 					if (!lib[name])
