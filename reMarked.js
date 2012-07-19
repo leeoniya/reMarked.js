@@ -49,6 +49,14 @@ reMarked = function(opts) {
 		return str.slice(0, i + 1);
 	}
 
+	function lpad(targ, padStr, len) {
+		return rep(padStr, len - targ.length) + targ;
+	}
+
+	function rpad(targ, padStr, len) {
+		return targ + rep(padStr, len - targ.length);
+	}
+
 	function otag(tag) {
 		if (!tag) return "";
 		return "<" + tag + ">";
