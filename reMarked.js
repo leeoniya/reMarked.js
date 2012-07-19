@@ -141,31 +141,34 @@ reMarked = function(opts) {
 		{
 			var i;
 			if (this.e.hasChildNodes()) {
-				var n, name, j = 1;
+				// inline elems allowing adjacent whitespace text nodes to be rendered
+				var inlRe = /^(?:a|strong|code|em|sub|sup|del|i|u|b|big|center)$/, n, name;
 				for (i in this.e.childNodes) {
 					if (!/\d+/.test(i)) continue;
 
 					n = this.e.childNodes[i];
 					name = nodeName(n);
+
+					// ignored tags
 					if (/style|script|canvas|video|audio/.test(name))
 						continue;
-					if (name == "txt" && /^\s+$/.test(n.textContent)) {
 
+					// empty whitespace handling
+					if (name == "txt" && /^\s+$/.test(n.textContent)) {
+						// ignore if first or last child (trim)
 						if (i == 0 || i == this.e.childNodes.length - 1 || !this.p)
 							continue;
 
-						// why not i?
-						var prev = this.e.childNodes[j-2];
-						var next = this.e.childNodes[j];
-						var inlre = /strong|code|em|sub|sup/;
-
-						if (!nodeName(prev).match(inlre) || !nodeName(next).match(inlre))
+						// only ouput when has an adjacent inline elem
+						var prev = this.e.childNodes[i-1],
+							next = this.e.childNodes[i+1];
+						if (!nodeName(prev).match(inlRe) || !nodeName(next).match(inlRe))
 							continue;
 					}
 					if (!lib[name])
 						name = "tag";
 
-					var node = new lib[name](n, this, j++);
+					var node = new lib[name](n, this, this.c.length);
 
 					if (node instanceof lib.a || node instanceof lib.img) {
 						node.lnkid = links.length;
@@ -284,7 +287,7 @@ reMarked = function(opts) {
 				return this.p.expn || kids.match(/\n{2}/gm) ? "\n" : "";			// || this.kids.match(\n)
 			}],
 			wrapK: [function() {
-				return this.p.tag == "ul" ? cfg.li_bullet + " " : this.i + ".  ";
+				return this.p.tag == "ul" ? cfg.li_bullet + " " : (this.i + 1) + ".  ";
 			}, ""],
 			rendK: function() {
 				return this.supr().replace(/\n([^\n])/gm, "\n" + cfg.indnt_str + "$1");
@@ -457,9 +460,9 @@ reMarked = function(opts) {
 					.replace(/\*/gm,"\\*");
 				}
 
-				if (this.i == 1)
+				if (this.i == 0)
 					kids = kids.replace(/^\n+/, "");
-				if (this.i == this.p.c.length)
+				if (this.i == this.p.c.length - 1)
 					kids = kids.replace(/\n+$/, "");
 				return kids;
 			}
