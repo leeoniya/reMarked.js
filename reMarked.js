@@ -20,8 +20,9 @@ reMarked = function(opts) {
 	//	list_indnt:					// indent top-level lists
 		hr_char:	"-_*"[0],		// hr style
 		indnt_str:	["    ","\t","  "][0],	// indentation string
-		emph_char:	"*_"[0]			// char used for strong and em
-	//
+		emph_char:	"*_"[0],		// char used for strong and em
+		gfm_tbls:	true,			// markdown-extra tables
+		tbl_edges:	false,			// show side edges on tables
 	};
 
 	extend(cfg, opts);
@@ -434,15 +435,88 @@ reMarked = function(opts) {
 			}
 		});
 
-		lib.table = lib.tblk.extend();
+		lib.table = cfg.gfm_tbls ? lib.blk.extend({
+			cols: [],
+			init: function(e, p, i) {
+				this.supr(e, p, i);
+				this.cols = [];
+			},
+			rend: function() {
+				// run prep on all cells to get max col widths
+				for (var tsec in this.c)
+					for (var row in this.c[tsec].c)
+						for (var cell in this.c[tsec].c[row].c)
+							this.c[tsec].c[row].c[cell].prep();
 
-		lib.tbody = lib.blk.extend();
+				return this.supr();
+			}
+		}) : lib.tblk.extend();
 
-		lib.tr = lib.ctblk.extend();
+		lib.thead = cfg.gfm_tbls ? lib.cblk.extend({
+			wrap: ["\n", function(kids) {
+				var buf = "";
+				for (var i in this.p.cols) {
+					var col = this.p.cols[i],
+						al = col.a[0] == "c" ? ":" : " ",
+						ar = col.a[0] == "r" || col.a[0] == "c" ? ":" : " ";
 
-		lib.th = lib.ctblk.extend();
+					buf += (i == 0 && cfg.tbl_edges ? "|" : "") + al + rep("-", col.w) + ar + (i < this.p.cols.length-1 || cfg.tbl_edges ? "|" : "");
+				}
+				return "\n" + trim12(buf);
+			}]
+		}) : lib.ctblk.extend();
 
-		lib.td = lib.ctblk.extend();
+		lib.tbody = cfg.gfm_tbls ? lib.cblk.extend() : lib.ctblk.extend();
+
+		lib.tfoot = cfg.gfm_tbls ? lib.cblk.extend() : lib.ctblk.extend();
+
+		lib.tr = cfg.gfm_tbls ? lib.cblk.extend({
+			wrapK: [cfg.tbl_edges ? "| " : "", cfg.tbl_edges ? " |" : ""],
+		}) : lib.ctblk.extend();
+
+		lib.th = cfg.gfm_tbls ? lib.inl.extend({
+			guts: null,
+			// TODO: DRY?
+			wrap: [function() {
+				var col = this.p.p.p.cols[this.i],
+					spc = this.i == 0 ? "" : " ",
+					pad, fill = col.w - this.guts.length;
+
+				switch (col.a[0]) {
+					case "r": pad = rep(" ", fill); break;
+					case "c": pad = rep(" ", Math.floor(fill/2)); break;
+					default:  pad = "";
+				}
+
+				return spc + pad;
+			}, function() {
+				var col = this.p.p.p.cols[this.i],
+					edg = this.i == this.p.c.length - 1 ? "" : " |",
+					pad, fill = col.w - this.guts.length;
+
+				switch (col.a[0]) {
+					case "r": pad = ""; break;
+					case "c": pad = rep(" ", Math.ceil(fill/2)); break;
+					default:  pad = rep(" ", fill);
+				}
+
+				return pad + edg;
+			}],
+			prep: function() {
+				this.guts = this.rendK();					// pre-render
+				this.rendK = function() {return this.guts};
+
+				var cols = this.p.p.p.cols;
+				if (!cols[this.i])
+					cols[this.i] = {w: null, a: ""};		// width and alignment
+				var col = cols[this.i];
+				col.w = Math.max(col.w || 0, this.guts.length);
+				if (this.e.align)
+					col.a = this.e.align;
+			},
+		}) : lib.ctblk.extend();
+
+			lib.td = lib.th.extend();
 
 		lib.txt = lib.inl.extend({
 			initK: function()
