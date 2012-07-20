@@ -374,6 +374,8 @@ reMarked = function(opts) {
 
 		lib.em = lib.inl.extend({wrap: cfg.emph_char});
 
+			lib.i = lib.em.extend();
+
 		lib.del = lib.tinl.extend();
 
 		lib.br = lib.inl.extend({
@@ -384,6 +386,8 @@ reMarked = function(opts) {
 		});
 
 		lib.strong = lib.inl.extend({wrap: rep(cfg.emph_char, 2)});
+
+			lib.b = lib.strong.extend();
 
 		lib.dl = lib.tblk.extend({lnInd: 2});
 
