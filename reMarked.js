@@ -21,7 +21,7 @@ reMarked = function(opts) {
 		hr_char:	"-_*"[0],		// hr style
 		indnt_str:	["    ","\t","  "][0],	// indentation string
 		bold_char:	"*_"[0],		// char used for strong
-    emph_char:	"*_"[1],		// char used for em
+		emph_char:	"*_"[1],		// char used for em
 		gfm_tbls:	true,			// markdown-extra tables
 		tbl_edges:	false,			// show side edges on tables
 		hash_lnks:	false,			// anchors w/hash hrefs as links
