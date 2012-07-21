@@ -20,7 +20,8 @@ reMarked = function(opts) {
 	//	list_indnt:					// indent top-level lists
 		hr_char:	"-_*"[0],		// hr style
 		indnt_str:	["    ","\t","  "][0],	// indentation string
-		emph_char:	"*_"[0],		// char used for strong and em
+		bold_char:	"*_"[0],		// char used for strong
+    emph_char:	"*_"[1],		// char used for em
 		gfm_tbls:	true,			// markdown-extra tables
 		tbl_edges:	false,			// show side edges on tables
 		hash_lnks:	false,			// anchors w/hash hrefs as links
@@ -385,7 +386,7 @@ reMarked = function(opts) {
 			}]
 		});
 
-		lib.strong = lib.inl.extend({wrap: rep(cfg.emph_char, 2)});
+		lib.strong = lib.inl.extend({wrap: rep(cfg.bold_char, 2)});
 
 			lib.b = lib.strong.extend();
 
