@@ -4,12 +4,12 @@
 	line-height:1.6;
 }
 
-.markdown-body>:first-child
+.markdown-body>*:first-child
 {
 	margin-top:0!important;
 }
 
-.markdown-body>:last-child
+.markdown-body>*:last-child
 {
 	margin-bottom:0!important;
 }
@@ -19,6 +19,18 @@
 	color:#c00;
 }
 
+.markdown-body a.anchor
+{
+	bottom:0;
+	cursor:pointer;
+	display:block;
+	left:0;
+	margin-left:-30px;
+	padding-left:30px;
+	position:absolute;
+	top:0;
+}
+
 .markdown-body h1,
 .markdown-body h2,
 .markdown-body h3,
@@ -26,10 +38,47 @@
 .markdown-body h5,
 .markdown-body h6
 {
-	-webkit-font-smoothing:antialiased;
-	font-weight:700;
+	cursor:text;
+	font-weight:bold;
 	margin:20px 0 10px;
 	padding:0;
+	position:relative;
+	webkit-font-smoothing:antialiased;
+}
+
+.markdown-body h1 .mini-icon-link,
+.markdown-body h2 .mini-icon-link,
+.markdown-body h3 .mini-icon-link,
+.markdown-body h4 .mini-icon-link,
+.markdown-body h5 .mini-icon-link,
+.markdown-body h6 .mini-icon-link
+{
+	color:#000;
+	display:none;
+}
+
+.markdown-body h1:hover a.anchor,
+.markdown-body h2:hover a.anchor,
+.markdown-body h3:hover a.anchor,
+.markdown-body h4:hover a.anchor,
+.markdown-body h5:hover a.anchor,
+.markdown-body h6:hover a.anchor
+{
+	line-height:1;
+	margin-left:-22px;
+	padding-left:0;
+	text-decoration:none;
+	top:15%;
+}
+
+.markdown-body h1:hover a.anchor .mini-icon-link,
+.markdown-body h2:hover a.anchor .mini-icon-link,
+.markdown-body h3:hover a.anchor .mini-icon-link,
+.markdown-body h4:hover a.anchor .mini-icon-link,
+.markdown-body h5:hover a.anchor .mini-icon-link,
+.markdown-body h6:hover a.anchor .mini-icon-link
+{
+	display:inline-block;
 }
 
 .markdown-body h1 tt,
@@ -87,7 +136,6 @@
 .markdown-body ul,
 .markdown-body ol,
 .markdown-body dl,
-.markdown-body li,
 .markdown-body table,
 .markdown-body pre
 {
@@ -96,7 +144,7 @@
 
 .markdown-body hr
 {
-	background:transparent url(https://a248.e.akamai.net/assets.github.com/images/modules/pulls/dirty-shade.png) repeat-x 0 0;
+	background:transparent url("https://a248.e.akamai.net/assets.github.com/assets/primer/markdown/dirty-shade-0e7d81b119cc9beae17b0c98093d121fa0050a74.png") repeat-x 0 0;
 	border:0 none;
 	color:#ccc;
 	height:4px;
@@ -110,6 +158,17 @@
 .markdown-body>h4:first-child,
 .markdown-body>h5:first-child,
 .markdown-body>h6:first-child
+{
+	margin-top:0;
+	padding-top:0;
+}
+
+.markdown-body a:first-child h1,
+.markdown-body a:first-child h2,
+.markdown-body a:first-child h3,
+.markdown-body a:first-child h4,
+.markdown-body a:first-child h5,
+.markdown-body a:first-child h6
 {
 	margin-top:0;
 	padding-top:0;
@@ -136,14 +195,25 @@
 	padding-left:30px;
 }
 
+.markdown-body ul.no-list,
+.markdown-body ol.no-list
+{
+	list-style-type:none;
+	padding:0;
+}
+
 .markdown-body ul li>:first-child,
-.markdown-body ol li>:first-child
+.markdown-body ul li ul:first-of-type,
+.markdown-body ol li>:first-child,
+.markdown-body ol li ul:first-of-type
 {
 	margin-top:0;
 }
 
-.markdown-body ul li>:last-child,
-.markdown-body ol li>:last-child
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul
 {
 	margin-bottom:0;
 }
@@ -157,7 +227,7 @@
 {
 	font-size:14px;
 	font-style:italic;
-	font-weight:700;
+	font-weight:bold;
 	margin:15px 0 5px;
 	padding:0;
 }
@@ -210,48 +280,27 @@
 	margin-bottom:0;
 }
 
-.markdown-body table
+.markdown-body table th
 {
-	padding:0;
+	font-weight:bold;
+}
+
+.markdown-body table th,
+.markdown-body table td
+{
+	border:1px solid #ccc;
+	padding:6px 13px;
 }
 
 .markdown-body table tr
 {
 	background-color:#fff;
 	border-top:1px solid #ccc;
-	margin:0;
-	padding:0;
 }
 
 .markdown-body table tr:nth-child(2n)
 {
 	background-color:#f8f8f8;
-}
-
-.markdown-body table tr th
-{
-	font-weight:700;
-}
-
-.markdown-body table tr th,
-.markdown-body table tr td
-{
-	border:1px solid #ccc;
-	margin:0;
-	padding:6px 13px;
-	text-align:left;
-}
-
-.markdown-body table tr th>:first-child,
-.markdown-body table tr td>:first-child
-{
-	margin-top:0;
-}
-
-.markdown-body table tr th>:last-child,
-.markdown-body table tr td>:last-child
-{
-	margin-bottom:0;
 }
 
 .markdown-body img
