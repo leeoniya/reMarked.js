@@ -11,59 +11,45 @@
 
 var block = {
   newline: /^\n+/,
-  code: /^ {4,}[^\n]*(?:\n {4,}[^\n]*|\n)*(?:\n+|$)/,
+  code: /^( {4}[^\n]+\n*)+/,
   fences: noop,
-  hr: /^( *[\-*_]){3,} *(?:\n+|$)/,
+  hr: /^( *[-*_]){3,} *(?:\n+|$)/,
   heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
   lheading: /^([^\n]+)\n *(=|-){3,} *\n*/,
   blockquote: /^( *>[^\n]+(\n[^\n]+)*\n*)+/,
-  list: /^( *)([*+-]|\d+\.) [^\0]+?(?:\n{2,}(?! )|\s*$)(?!\1bullet)\n*/,
+  list: /^( *)(bull) [^\0]+?(?:hr|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
   html: /^ *(?:comment|closed|closing) *(?:\n{2,}|\s*$)/,
   def: /^ *\[([^\]]+)\]: *([^\s]+)(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
-  paragraph: /^([^\n]+\n?(?!body))+\n*/,
+  paragraph: /^([^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+\n*/,
   text: /^[^\n]+/
 };
 
-block.list = (function() {
-  var list = block.list.source;
+block.bullet = /(?:[*+-]|\d+\.)/;
+block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;
+block.item = replace(block.item, 'gm')
+  (/bull/g, block.bullet)
+  ();
 
-  list = list
-    .replace('bullet', /(?:[*+-](?!(?: *[-*]){2,})|\d+\.)/.source);
+block.list = replace(block.list)
+  (/bull/g, block.bullet)
+  ('hr', /\n+(?=(?: *[-*_]){3,} *(?:\n+|$))/)
+  ();
 
-  return new RegExp(list);
-})();
+block.html = replace(block.html)
+  ('comment', /<!--[^\0]*?-->/)
+  ('closed', /<(tag)[^\0]+?<\/\1>/)
+  ('closing', /<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)
+  (/tag/g, tag())
+  ();
 
-block.html = (function() {
-  var html = block.html.source;
-
-  html = html
-    .replace('comment', /<!--[^\0]*?-->/.source)
-    .replace('closed', /<(tag)[^\0]+?<\/\1>/.source)
-    .replace('closing', /<tag(?!:\/|@)\b(?:"[^"]*"|'[^']*'|[^'">])*?>/.source)
-    .replace(/tag/g, tag());
-
-  return new RegExp(html);
-})();
-
-block.paragraph = (function() {
-  var paragraph = block.paragraph.source
-    , body = [];
-
-  (function push(rule) {
-    rule = block[rule] ? block[rule].source : rule;
-    body.push(rule.replace(/(^|[^\[])\^/g, '$1'));
-    return push;
-  })
-  ('hr')
-  ('heading')
-  ('lheading')
-  ('blockquote')
-  ('<' + tag())
-  ('def');
-
-  return new
-    RegExp(paragraph.replace('body', body.join('|')));
-})();
+block.paragraph = replace(block.paragraph)
+  ('hr', block.hr)
+  ('heading', block.heading)
+  ('lheading', block.lheading)
+  ('blockquote', block.blockquote)
+  ('tag', '<' + tag())
+  ('def', block.def)
+  ();
 
 block.normal = {
   fences: block.fences,
@@ -71,19 +57,13 @@ block.normal = {
 };
 
 block.gfm = {
-  fences: /^ *``` *(\w+)? *\n([^\0]+?)\s*``` *(?:\n+|$)/,
+  fences: /^ *(```|~~~) *(\w+)? *\n([^\0]+?)\s*\1 *(?:\n+|$)/,
   paragraph: /^/
 };
 
-block.gfm.paragraph = (function() {
-  var paragraph = block.paragraph.source
-    , fences = block.gfm.fences.source;
-
-  fences = fences.replace(/(^|[^\[])\^/g, '$1');
-  paragraph = paragraph.replace(/(\(\?!)/, '$1' + fences + '|');
-
-  return new RegExp(paragraph);
-})();
+block.gfm.paragraph = replace(block.paragraph)
+  ('(?!', '(?!' + block.gfm.fences.source.replace('\\1', '\\2') + '|')
+  ();
 
 /**
  * Block Lexer
@@ -140,8 +120,8 @@ block.token = function(src, tokens, top) {
       src = src.substring(cap[0].length);
       tokens.push({
         type: 'code',
-        lang: cap[1],
-        text: cap[2]
+        lang: cap[2],
+        text: cap[3]
       });
       continue;
     }
@@ -209,9 +189,7 @@ block.token = function(src, tokens, top) {
       });
 
       // Get each top-level item.
-      cap = cap[0].match(
-        /^( *)([*+-]|\d+\.)[^\n]*(?:\n(?!\1(?:[*+-]|\d+\.))[^\n]*)*/gm
-      );
+      cap = cap[0].match(block.item);
 
       next = false;
       l = cap.length;
@@ -223,7 +201,7 @@ block.token = function(src, tokens, top) {
         // Remove the list item's bullet
         // so it is seen as the next token.
         space = item.length;
-        item = item.replace(/^ *([*+-]|\d+\.) */, '');
+        item = item.replace(/^ *([*+-]|\d+\.) +/, '');
 
         // Outdent whatever the
         // list item contains. Hacky.
@@ -268,7 +246,9 @@ block.token = function(src, tokens, top) {
     if (cap = block.html.exec(src)) {
       src = src.substring(cap[0].length);
       tokens.push({
-        type: 'html',
+        type: options.sanitize
+          ? 'paragraph'
+          : 'html',
         pre: cap[1] === 'pre',
         text: cap[0]
       });
@@ -319,8 +299,8 @@ var inline = {
   autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
   url: noop,
   tag: /^<!--[^\0]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
-  link: /^!?\[((?:\[[^\]]*\]|[^\[\]]|\[|\](?=[^[\]]*\]))*)\]\(([^\)]*)\)/,
-  reflink: /^!?\[((?:\[[^\]]*\]|[^\[\]]|\[|\](?=[^[\]]*\]))*)\]\s*\[([^\]]*)\]/,
+  link: /^!?\[(inside)\]\(href\)/,
+  reflink: /^!?\[(inside)\]\s*\[([^\]]*)\]/,
   nolink: /^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,
   strong: /^__([^\0]+?)__(?!_)|^\*\*([^\0]+?)\*\*(?!\*)/,
   em: /^\b_((?:__|[^\0])+?)_\b|^\*((?:\*\*|[^\0])+?)\*(?!\*)/,
@@ -328,6 +308,18 @@ var inline = {
   br: /^ {2,}\n(?!\s*$)/,
   text: /^[^\0]+?(?=[\\<!\[_*`]| {2,}\n|$)/
 };
+
+inline._linkInside = /(?:\[[^\]]*\]|[^\]]|\](?=[^\[]*\]))*/;
+inline._linkHref = /\s*<?([^\s]*?)>?(?:\s+['"]([^\0]*?)['"])?\s*/;
+
+inline.link = replace(inline.link)
+  ('inside', inline._linkInside)
+  ('href', inline._linkHref)
+  ();
+
+inline.reflink = replace(inline.reflink)
+  ('inside', inline._linkInside)
+  ();
 
 inline.normal = {
   url: inline.url,
@@ -342,14 +334,8 @@ inline.pedantic = {
 };
 
 inline.gfm = {
-  url: /^(\w+:\/\/[^\s]+[^.,:;"')\]\s])/,
-  // br: /^\n(?!\s*$)/,
-  text: /^[^\0]+?(?=[\\<!\[_*`]|\w+:\/\/| {2,}\n|$)/
-};
-
-inline.discount = {
-  strong: /^__([^\0]+?)__(?!_)|^\*\*([^\0]+?)\*\*(?!\*)/,
-  em: /^\b_(?=\S)([^\0]*?\S)_\b|^\*(?=\S)([^\0]*?(?:\*\*|[^\s*]))\*(?!\*)/
+  url: /^(https?:\/\/[^\s]+[^.,:;"')\]\s])/,
+  text: /^[^\0]+?(?=[\\<!\[_*`]|https?:\/\/| {2,}\n|$)/
 };
 
 /**
@@ -417,15 +403,9 @@ inline.lexer = function(src) {
     // link
     if (cap = inline.link.exec(src)) {
       src = src.substring(cap[0].length);
-      text = /^\s*<?([^\s]*?)>?(?:\s+"([^\n]+)")?\s*$/.exec(cap[2]);
-      if (!text) {
-        out += cap[0][0];
-        src = cap[0].substring(1) + src;
-        continue;
-      }
       out += outputLink(cap, {
-        href: text[1],
-        title: text[2]
+        href: cap[2],
+        title: cap[3]
       });
       continue;
     }
@@ -490,7 +470,7 @@ inline.lexer = function(src) {
   return out;
 };
 
-var outputLink = function(cap, link) {
+function outputLink(cap, link) {
   if (cap[0][0] !== '!') {
     return '<a href="'
       + escape(link.href)
@@ -516,7 +496,7 @@ var outputLink = function(cap, link) {
       : '')
       + '>';
   }
-};
+}
 
 /**
  * Parsing
@@ -525,11 +505,11 @@ var outputLink = function(cap, link) {
 var tokens
   , token;
 
-var next = function() {
+function next() {
   return token = tokens.pop();
-};
+}
 
-var tok = function() {
+function tok() {
   switch (token.type) {
     case 'space': {
       return '';
@@ -547,16 +527,26 @@ var tok = function() {
         + '>\n';
     }
     case 'code': {
+      if (options.highlight) {
+        token.code = options.highlight(token.text, token.lang);
+        if (token.code != null && token.code !== token.text) {
+          token.escaped = true;
+          token.text = token.code;
+        }
+      }
+
+      if (!token.escaped) {
+        token.text = escape(token.text, true);
+      }
+
       return '<pre><code'
         + (token.lang
-        ? ' class="'
+        ? ' class="lang-'
         + token.lang
         + '"'
         : '')
         + '>'
-        + (token.escaped
-        ? token.text
-        : escape(token.text, true))
+        + token.text
         + '</code></pre>\n';
     }
     case 'blockquote_start': {
@@ -611,9 +601,6 @@ var tok = function() {
         + '</li>\n';
     }
     case 'html': {
-      if (options.sanitize) {
-        return inline.lexer(token.text);
-      }
       return !token.pre && !options.pedantic
         ? inline.lexer(token.text)
         : token.text;
@@ -629,9 +616,9 @@ var tok = function() {
         + '</p>\n';
     }
   }
-};
+}
 
-var parseText = function() {
+function parseText() {
   var body = token.text
     , top;
 
@@ -641,9 +628,9 @@ var parseText = function() {
   }
 
   return inline.lexer(body);
-};
+}
 
-var parse = function(src) {
+function parse(src) {
   tokens = src.reverse();
 
   var out = '';
@@ -655,22 +642,22 @@ var parse = function(src) {
   token = null;
 
   return out;
-};
+}
 
 /**
  * Helpers
  */
 
-var escape = function(html, encode) {
+function escape(html, encode) {
   return html
     .replace(!encode ? /&(?!#?\w+;)/g : /&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-};
+}
 
-var mangle = function(text) {
+function mangle(text) {
   var out = ''
     , l = text.length
     , i = 0
@@ -685,15 +672,27 @@ var mangle = function(text) {
   }
 
   return out;
-};
+}
 
 function tag() {
   var tag = '(?!(?:'
     + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code'
     + '|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo'
-    + '|span|br|wbr|ins|del|img)\\b)\\w+';
+    + '|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|@)\\b';
 
   return tag;
+}
+
+function replace(regex, opt) {
+  regex = regex.source;
+  opt = opt || '';
+  return function self(name, val) {
+    if (!name) return new RegExp(regex, opt);
+    val = val.source || val;
+    val = val.replace(/(^|[^\[])\^/g, '$1');
+    regex = regex.replace(name, val);
+    return self;
+  };
 }
 
 function noop() {}
@@ -703,10 +702,10 @@ noop.exec = noop;
  * Marked
  */
 
-var marked = function(src, opt) {
+function marked(src, opt) {
   setOptions(opt);
   return parse(block.lexer(src));
-};
+}
 
 /**
  * Options
@@ -715,7 +714,7 @@ var marked = function(src, opt) {
 var options
   , defaults;
 
-var setOptions = function(opt) {
+function setOptions(opt) {
   if (!opt) opt = defaults;
   if (options === opt) return;
   options = opt;
@@ -739,18 +738,20 @@ var setOptions = function(opt) {
     inline.em = inline.normal.em;
     inline.strong = inline.normal.strong;
   }
-};
+}
 
 marked.options =
 marked.setOptions = function(opt) {
   defaults = opt;
   setOptions(opt);
+  return marked;
 };
 
-marked.options({
+marked.setOptions({
   gfm: true,
   pedantic: false,
-  sanitize: false
+  sanitize: false,
+  highlight: null
 });
 
 /**
@@ -775,4 +776,6 @@ if (typeof module !== 'undefined') {
   this.marked = marked;
 }
 
-}).call(this);
+}).call(function() {
+  return this || (typeof window !== 'undefined' ? window : global);
+}());

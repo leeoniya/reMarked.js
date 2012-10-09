@@ -12,10 +12,15 @@
 <head>
 	<meta charset="utf-8">
 	<title>marked.js gen</title>
-	<script src="../vendor/jquery-1.7.1_min.js"></script>
+	<script src="../vendor/jquery-1.8.2.min.js"></script>
 	<script src="../vendor/marked.js"></script>
 	<script src="../bootstrap.js"></script>
 	<script>
+		marked.setOptions({
+			gfm: true,
+			sanitize: false,
+		});
+
 		$(document).ready(function(){
 			$.each(list, function(i, v) {
 				$.get('../md_src/' + v + '.md', function(data) {
