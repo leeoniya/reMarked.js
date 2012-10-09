@@ -35,13 +35,13 @@ page titles, and a working back button that fully degrades.
 <p>One. Functionally obtrusive, loading the href with ajax into data-pjax:
 
 </p>
-<pre><code class="html">&lt;a href=&#39;/explore&#39; data-pjax=&#39;#main&#39;&gt;Explore&lt;/a&gt;</code></pre>
-<pre><code class="js">$(&#39;a[data-pjax]&#39;).pjax()</code></pre>
+<pre><code class="lang-html">&lt;a href=&#39;/explore&#39; data-pjax=&#39;#main&#39;&gt;Explore&lt;/a&gt;</code></pre>
+<pre><code class="lang-js">$(&#39;a[data-pjax]&#39;).pjax()</code></pre>
 <p>Two. Slightly obtrusive, passing a container and binding an error handler:
 
 </p>
-<pre><code class="html">&lt;a href=&#39;/explore&#39; class=&#39;js-pjax&#39;&gt;Explore&lt;/a&gt;</code></pre>
-<pre><code class="js">$(&#39;.js-pjax&#39;).pjax(&#39;#main&#39;)
+<pre><code class="lang-html">&lt;a href=&#39;/explore&#39; class=&#39;js-pjax&#39;&gt;Explore&lt;/a&gt;</code></pre>
+<pre><code class="lang-js">$(&#39;.js-pjax&#39;).pjax(&#39;#main&#39;)
 
 $(&#39;#main&#39;).live(&#39;pjax:error&#39;, function(e, xhr, err) {
   $(&#39;.error&#39;).text(&#39;Something went wrong: &#39; + err)
@@ -49,14 +49,14 @@ $(&#39;#main&#39;).live(&#39;pjax:error&#39;, function(e, xhr, err) {
 <p>Three. Unobtrusive, showing a &#39;loading&#39; spinner:
 
 </p>
-<pre><code class="html">&lt;div id=&#39;main&#39;&gt;
+<pre><code class="lang-html">&lt;div id=&#39;main&#39;&gt;
   &lt;div class=&#39;loader&#39; style=&#39;display:none&#39;&gt;&lt;img src=&#39;spin.gif&#39;&gt;&lt;/div&gt;
   &lt;div class=&#39;tabs&#39;&gt;
     &lt;a href=&#39;/explore&#39;&gt;Explore&lt;/a&gt;
     &lt;a href=&#39;/help&#39;&gt;Help&lt;/a&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
-<pre><code class="js">$(&#39;a&#39;).pjax(&#39;#main&#39;).live(&#39;click&#39;, function(){
+<pre><code class="lang-js">$(&#39;a&#39;).pjax(&#39;#main&#39;).live(&#39;click&#39;, function(){
   $(this).showLoader()
 })</code></pre>
 <h2>$(link).pjax( container, options )</h2>
@@ -95,14 +95,14 @@ as well.
 <p>This pjax call:
 
 </p>
-<pre><code class="js">$.pjax({
+<pre><code class="lang-js">$.pjax({
   url: &#39;/authors&#39;,
   container: &#39;#main&#39;
 })</code></pre>
 <p>Roughly translates into this ajax call:
 
 </p>
-<pre><code class="js">$.ajax({
+<pre><code class="lang-js">$.ajax({
   url: &#39;/authors&#39;,
   dataType: &#39;html&#39;,
   beforeSend: function(xhr){
@@ -125,7 +125,7 @@ header to &#39;true&#39; when it makes an ajax request to make detecting it easy
 <p>In Rails, check for <code>request.headers[&#39;X-PJAX&#39;]</code>:
 
 </p>
-<pre><code class="ruby">def my_page
+<pre><code class="lang-ruby">def my_page
   if request.headers[&#39;X-PJAX&#39;]
     render :layout =&gt; false
   end
@@ -133,7 +133,7 @@ end</code></pre>
 <p>Or as a before filter in application controller:
 
 </p>
-<pre><code class="ruby">layout :set_layout
+<pre><code class="lang-ruby">layout :set_layout
 
 private
   def set_layout
@@ -171,14 +171,14 @@ reponse body into:
 <p>This allows you to, say, display a loading indicator upon pjaxing:
 
 </p>
-<pre><code class="js">$(&#39;a.pjax&#39;).pjax(&#39;#main&#39;)
+<pre><code class="lang-js">$(&#39;a.pjax&#39;).pjax(&#39;#main&#39;)
 $(&#39;#main&#39;)
   .on(&#39;pjax:start&#39;, function() { $(&#39;#loading&#39;).show() })
   .on(&#39;pjax:end&#39;,   function() { $(&#39;#loading&#39;).hide() })</code></pre>
 <p>Because these events bubble, you can also set them on the document:
 
 </p>
-<pre><code class="js">$(&#39;a.pjax&#39;).pjax()
+<pre><code class="lang-js">$(&#39;a.pjax&#39;).pjax()
 $(document)
   .on(&#39;pjax:start&#39;, function() { $(&#39;#loading&#39;).show() })
   .on(&#39;pjax:end&#39;,   function() { $(&#39;#loading&#39;).hide() })</code></pre>
@@ -193,14 +193,14 @@ callbacks.
 <li><code>pjax:success</code>    - Fired after the pjax request succeeds.</li>
 <li><code>pjax:error</code>      - Fired after the pjax request fails. Returning<pre><code>                false will prevent the the fallback redirect.</code></pre>
 </li>
-<li><p><code>pjax:timeout</code>    - Fired if after timeout is reached. Returning</p>
-<pre><code>                false will disable the fallback and will wait
+<li><code>pjax:timeout</code>    - Fired if after timeout is reached. Returning<pre><code>                false will disable the fallback and will wait
                 indefinitely until the response returns.</code></pre>
 </li>
-<li><p><em>CAUTION<strong> Callback handlers passed to <code>$.pjax</code> </strong>cannot*</em> be persisted
-across full page reloads. Its recommended you use custom events instead.</p>
-</li>
 </ul>
+<p><strong>CAUTION</strong> Callback handlers passed to <code>$.pjax</code> <strong>cannot</strong> be persisted
+across full page reloads. Its recommended you use custom events instead.
+
+</p>
 <h2>browser support</h2>
 <p>pjax only works with browsers that support the history.pushState API.
 
@@ -222,7 +222,7 @@ $ wget https://github.com/defunkt/jquery-pjax/raw/master/jquery.pjax.js</code></
 <p>Then, in your HTML:
 
 </p>
-<pre><code class="html">&lt;script src=&quot;path/to/js/jquery.pjax.js&quot;&gt;&lt;/script&gt;</code></pre>
+<pre><code class="lang-html">&lt;script src=&quot;path/to/js/jquery.pjax.js&quot;&gt;&lt;/script&gt;</code></pre>
 <p>Replace <code>path/to/js</code> with the path to your JavaScript directory,
 e.g. <code>public/javascripts</code>.
 

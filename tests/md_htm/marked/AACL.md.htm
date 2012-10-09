@@ -81,8 +81,6 @@ against which access rules can be created.
  Convention is for controllers to return as <code>c:controller_name</code> and models as <code>m:model_name.primary_key_value</code>
  Remember that dot in model identifier - it is significant!</p>
 </li>
-</ul>
-<ul>
 <li><p><strong>public function acl_actions($return_current = FALSE)</strong></p>
 <p> This method servers a dual purpose. When the argument <code>$return_current</code> is false, the method should return an array of string names, one for each action
  that can be carried out on the resource. For no specific actions, an empty array should be returned.</p>
@@ -91,8 +89,6 @@ against which access rules can be created.
 <li><code>Sprig_AACL</code> returns actions &#39;create&#39;, &#39;read&#39;, &#39;update&#39;, &#39;delete&#39;. These can be changed by overriding this method in specific models.</li>
 </ul>
 </li>
-</ul>
-<ul>
 <li><p><strong>public function acl_conditions(Model_User $user = NULL, $condition = NULL)</strong></p>
 <p> This method also servers a dual purpose: it both defines available conditions and checks them.</p>
 <ul>
@@ -103,8 +99,6 @@ The format of this array is <code>array(&#39;condition_id&#39; =&gt; &#39;Nice d
 </li>
 </ul>
 </li>
-</ul>
-<ul>
 <li><p><strong>public static function acl_instance($class_name)</strong></p>
 <p> This method is used for auto-discovery of available resources. Since the resource ID, actions and conditions must be obtained from an object, 
  we need a way to get and instance of the object given only the class name. Not that the object returned shoul not be used for anything except calling <code>acl_*</code> methods
@@ -188,22 +182,16 @@ This is to keep things simple and to prevent the need for having a role hierarch
 <li><p><strong>$role</strong></p>
 <p> Can be either a <code>Model_Role</code> object or a string role name. This is the role that the rule applies to.</p>
 </li>
-</ul>
-<ul>
 <li><p><strong>$resource_id</strong></p>
 <p> A string identifying the resource the rule applies to. Note that dots in resource IDs indicate a level or specificity. 
  For example, <code>m:post.34</code> would grant access to Model_Post object with id 34, <code>m:post</code> would grant access to all post objects.
  The wildcard <code>*</code> can also be used (alone) to match any resource. This will grant the role in question complete access to everything though so is
  probably only going to be used, at most, for only one role per application!</p>
 </li>
-</ul>
-<ul>
 <li><p><strong>$action</strong></p>
 <p> Specifies a specific action of that resource which may be accessed. For example if role is <code>m:post</code> and action is <code>delete</code>, access will be granted to delete any post object.
  If the action is NULL or does not exist (i.e. is not returned by the resource&#39;s acl_actions() method) then access will be granted for any action on the resource.</p>
 </li>
-</ul>
-<ul>
 <li><p><strong>$conditions</strong></p>
 <p> Specifies a condition of the resource which must be met to allow access. For example, <code>AACL::grant(&#39;login&#39;, &#39;m:post&#39;, &#39;edit&#39;, &#39;is_author&#39;);</code> 
  allows any user access to edit a post <em>provided</em> that they are the post&#39;s author. If the condition string passed doesn&#39;t match a valid condition 
@@ -264,8 +252,6 @@ AACL::revoke(&#39;staff&#39;, &#39;*&#39;);                                // Re
 <p> Since controllers inherently know about the currently executing action, all actions in a controller will automatically be protected (according to their action-specific 
  rules) simply by calling <code>AACL::check($this)</code> in the controller&#39;s <code>before()</code> method.</p>
 </li>
-</ul>
-<ul>
 <li><p><strong>$action</strong> </p>
 <p> If the resource doesn&#39;t know inherently which action is being requested, it can be specified here. If specified here, it will over-ride the 
  action the resource object claims to be executing. So to check the permission of a <em>different</em> action of the same controller 

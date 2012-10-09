@@ -20,7 +20,8 @@ reMarked = function(opts) {
 	//	list_indnt:					// indent top-level lists
 		hr_char:	"-_*"[0],		// hr style
 		indnt_str:	["    ","\t","  "][0],	// indentation string
-		emph_char:	"*_"[0],		// char used for strong and em
+		bold_char:	"*_"[0],		// char used for strong
+		emph_char:	"*_"[1],		// char used for em
 		gfm_tbls:	true,			// markdown-extra tables
 		tbl_edges:	false,			// show side edges on tables
 		hash_lnks:	false,			// anchors w/hash hrefs as links
@@ -374,6 +375,8 @@ reMarked = function(opts) {
 
 		lib.em = lib.inl.extend({wrap: cfg.emph_char});
 
+			lib.i = lib.em.extend();
+
 		lib.del = lib.tinl.extend();
 
 		lib.br = lib.inl.extend({
@@ -383,7 +386,9 @@ reMarked = function(opts) {
 			}]
 		});
 
-		lib.strong = lib.inl.extend({wrap: rep(cfg.emph_char, 2)});
+		lib.strong = lib.inl.extend({wrap: rep(cfg.bold_char, 2)});
+
+			lib.b = lib.strong.extend();
 
 		lib.dl = lib.tblk.extend({lnInd: 2});
 
@@ -425,7 +430,12 @@ reMarked = function(opts) {
 
 					if (cfg.gfm_code) {
 						var cls = this.e.getAttribute("class");
-						this.wrapK = ["```" + (cls ? " " + cls : "") + "\n", "\n```"];
+						cls = (cls || "").split(" ")[0]);
+
+						if (cls.indexOf("lang-") === 0)			// marked uses "lang-" prefix now
+							cls = cls.substr(5);
+
+						this.wrapK = ["```" + cls + "\n", "\n```"];
 					}
 					else {
 						this.wrapK = "";
@@ -544,7 +554,7 @@ reMarked = function(opts) {
 };
 
 /*!
-  * klass: a classical JS OOP façade
+  * klass: a classical JS OOP faÃ§ade
   * https://github.com/ded/klass
   * License MIT (c) Dustin Diaz & Jacob Thornton 2012
   */

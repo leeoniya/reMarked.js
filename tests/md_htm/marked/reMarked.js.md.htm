@@ -8,17 +8,21 @@
 </p>
 <hr>
 <h3>Usage</h3>
-<pre><code class="js">// optional options w/defaults
+<pre><code class="lang-js">// optional options w/defaults
 var options = {
-    link_list:    false,        // render links as references, create link list as appendix
-    h1_setext:    true,        // underline h1 headers
-    h2_setext:    true,        // underline h2 headers
-    h_atx_suf:    false,        // header suffixes (###)
-    gfm_code:    false,        // render code blocks as via ``` delims
-    li_bullet:    &quot;*&quot;,        // list item bullet style
-    hr_char:    &quot;-&quot;,        // hr style
-    indnt_str:    &quot;    &quot;,        // indentation string
-    emph_char:    &quot;*&quot;            // char used for strong and em
+    link_list:  false,    // render links as references, create link list as appendix
+    h1_setext:  true,     // underline h1 headers
+    h2_setext:  true,     // underline h2 headers
+    h_atx_suf:  false,    // header suffixes (###)
+    gfm_code:   false,    // gfm code blocks (```)
+    li_bullet:  &quot;*&quot;,      // list item bullet style
+    hr_char:    &quot;-&quot;,      // hr style
+    indnt_str:  &quot;    &quot;,   // indentation string
+    bold_char:  &quot;*&quot;,      // char used for strong
+    emph_char:  &quot;_&quot;,      // char used for em
+    gfm_tbls:   true,     // markdown-extra tables
+    tbl_edges:  false,    // show side edges on tables
+    hash_lnks:  false,    // anchors w/hash hrefs as links
 }
 
 var reMarker = new reMarked(options);

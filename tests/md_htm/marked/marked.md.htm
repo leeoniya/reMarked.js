@@ -7,7 +7,7 @@ Built for speed.
 <p>node v0.4.x
 
 </p>
-<pre><code class="bash">$ node test --bench
+<pre><code class="lang-bash">$ node test --bench
 marked completed in 12071ms.
 showdown (reuse converter) completed in 27387ms.
 showdown (new converter) completed in 75617ms.
@@ -15,7 +15,7 @@ markdown-js completed in 70069ms.</code></pre>
 <p>node v0.6.x
 
 </p>
-<pre><code class="bash">$ node test --bench
+<pre><code class="lang-bash">$ node test --bench
 marked completed in 6448ms.
 marked (gfm) completed in 7357ms.
 marked (pedantic) completed in 6092ms.
@@ -35,7 +35,7 @@ aspects.
 
 </p>
 <h2>Install</h2>
-<pre><code class="bash">$ npm install marked</code></pre>
+<pre><code class="lang-bash">$ npm install marked</code></pre>
 <h2>Another javascript markdown parser</h2>
 <p>The point of marked was to create a markdown compiler where it was possible to
 frequently parse huge chunks of markdown without having to worry about
@@ -73,7 +73,7 @@ Don&#39;t fix any of the original markdown bugs or poor behavior.</li>
 
 </p>
 <h2>Usage</h2>
-<pre><code class="js">// set default options
+<pre><code class="lang-js">// set default options
 marked.setOptions({
   gfm: true,
   pedantic: false,
@@ -83,16 +83,16 @@ console.log(marked(&#39;i am using __markdown__.&#39;));</code></pre>
 <p>You also have direct access to the lexer and parser if you so desire.
 
 </p>
-<pre><code class="js">var tokens = marked.lexer(str);
+<pre><code class="lang-js">var tokens = marked.lexer(str);
 console.log(marked.parser(tokens));</code></pre>
-<pre><code class="bash">$ node
+<pre><code class="lang-bash">$ node
 &gt; require(&#39;marked&#39;).lexer(&#39;&gt; i am using marked.&#39;)
 [ { type: &#39;blockquote_start&#39; },
   { type: &#39;text&#39;, text: &#39; i am using marked.&#39; },
   { type: &#39;blockquote_end&#39; },
   links: {} ]</code></pre>
 <h2>CLI</h2>
-<pre><code class="bash">$ marked -o hello.html
+<pre><code class="lang-bash">$ marked -o hello.html
 hello world
 ^D
 $ cat hello.html
@@ -105,7 +105,7 @@ blocks before they&#39;re output.
 <p>Example implementation:
 
 </p>
-<pre><code class="js">var highlight = require(&#39;my-syntax-highlighter&#39;)
+<pre><code class="lang-js">var highlight = require(&#39;my-syntax-highlighter&#39;)
   , marked_ = require(&#39;marked&#39;);
 
 var marked = function(text) {
