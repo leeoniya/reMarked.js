@@ -15,7 +15,7 @@ var options = {
     h1_setext:  true,     // underline h1 headers
     h2_setext:  true,     // underline h2 headers
     h_atx_suf:  false,    // header suffixes (###)
-    gfm_code:   false,    // render code blocks using ```
+    gfm_code:   false,    // gfm code blocks (```)
     li_bullet:  "*",      // list item bullet style
     hr_char:    "-",      // hr style
     indnt_str:  "    ",   // indentation string
