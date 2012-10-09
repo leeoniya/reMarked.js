@@ -190,17 +190,7 @@ if (strcasecmp(substr(__FILE__, -16), "classTextile.php") == 0) {
 
 class Markdown_Parser {
 
-	# Regex to match balanced [brackets].
-	# Needed to insert a maximum bracked depth while converting to PHP.
-	var $nested_brackets_depth = 6;
-	var $nested_brackets_re;
-	
-	var $nested_url_parenthesis_depth = 4;
-	var $nested_url_parenthesis_re;
-
-	# Table of hash values for escaped characters:
-	var $escape_chars = '\`*_{}[]()>#+-.!';
-	var $escape_chars_re;
+	### Configuration Variables ###
 
 	# Change to ">" for HTML output.
 	var $empty_element_suffix = MARKDOWN_EMPTY_ELEMENT_SUFFIX;
@@ -213,6 +203,21 @@ class Markdown_Parser {
 	# Predefined urls and titles for reference links and images.
 	var $predef_urls = array();
 	var $predef_titles = array();
+
+
+	### Parser Implementation ###
+
+	# Regex to match balanced [brackets].
+	# Needed to insert a maximum bracked depth while converting to PHP.
+	var $nested_brackets_depth = 6;
+	var $nested_brackets_re;
+	
+	var $nested_url_parenthesis_depth = 4;
+	var $nested_url_parenthesis_re;
+
+	# Table of hash values for escaped characters:
+	var $escape_chars = '\`*_{}[]()>#+-.!';
+	var $escape_chars_re;
 
 
 	function Markdown_Parser() {
@@ -382,7 +387,9 @@ class Markdown_Parser {
 		#
 		$block_tags_a_re = 'ins|del';
 		$block_tags_b_re = 'p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|address|'.
-						   'script|noscript|form|fieldset|iframe|math';
+						   'script|noscript|form|fieldset|iframe|math|svg|'.
+						   'article|section|nav|aside|hgroup|header|footer|'.
+						   'figure';
 
 		# Regular expression for the content of a block tag.
 		$nested_tags_level = 4;
@@ -1658,7 +1665,7 @@ Perl by John Gruber.
 
 Markdown is a text-to-HTML filter; it translates an easy-to-read /
 easy-to-write structured text format into HTML. Markdown's text format
-is most similar to that of plain text email, and supports features such
+is mostly similar to that of plain text email, and supports features such
 as headers, *emphasis*, code blocks, blockquotes, and links.
 
 Markdown's syntax is designed not as a generic markup language, but

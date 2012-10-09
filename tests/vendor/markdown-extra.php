@@ -214,17 +214,7 @@ if (strcasecmp(substr(__FILE__, -16), "classTextile.php") == 0) {
 
 class Markdown_Parser {
 
-	# Regex to match balanced [brackets].
-	# Needed to insert a maximum bracked depth while converting to PHP.
-	var $nested_brackets_depth = 6;
-	var $nested_brackets_re;
-	
-	var $nested_url_parenthesis_depth = 4;
-	var $nested_url_parenthesis_re;
-
-	# Table of hash values for escaped characters:
-	var $escape_chars = '\`*_{}[]()>#+-.!';
-	var $escape_chars_re;
+	### Configuration Variables ###
 
 	# Change to ">" for HTML output.
 	var $empty_element_suffix = MARKDOWN_EMPTY_ELEMENT_SUFFIX;
@@ -237,6 +227,21 @@ class Markdown_Parser {
 	# Predefined urls and titles for reference links and images.
 	var $predef_urls = array();
 	var $predef_titles = array();
+
+
+	### Parser Implementation ###
+
+	# Regex to match balanced [brackets].
+	# Needed to insert a maximum bracked depth while converting to PHP.
+	var $nested_brackets_depth = 6;
+	var $nested_brackets_re;
+	
+	var $nested_url_parenthesis_depth = 4;
+	var $nested_url_parenthesis_re;
+
+	# Table of hash values for escaped characters:
+	var $escape_chars = '\`*_{}[]()>#+-.!';
+	var $escape_chars_re;
 
 
 	function Markdown_Parser() {
@@ -406,7 +411,9 @@ class Markdown_Parser {
 		#
 		$block_tags_a_re = 'ins|del';
 		$block_tags_b_re = 'p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|address|'.
-						   'script|noscript|form|fieldset|iframe|math';
+						   'script|noscript|form|fieldset|iframe|math|svg|'.
+						   'article|section|nav|aside|hgroup|header|footer|'.
+						   'figure';
 
 		# Regular expression for the content of a block tag.
 		$nested_tags_level = 4;
@@ -1676,6 +1683,8 @@ class Markdown_Parser {
 
 class MarkdownExtra_Parser extends Markdown_Parser {
 
+	### Configuration Variables ###
+
 	# Prefix for footnote ids.
 	var $fn_id_prefix = "";
 	
@@ -1690,6 +1699,8 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 	# Predefined abbreviations.
 	var $predef_abbr = array();
 
+
+	### Parser Implementation ###
 
 	function MarkdownExtra_Parser() {
 	#
@@ -1724,6 +1735,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 	# Extra variables used during extra transformations.
 	var $footnotes = array();
 	var $footnotes_ordered = array();
+	var $footnotes_numbers = array();
 	var $abbr_desciptions = array();
 	var $abbr_word_re = '';
 	
@@ -1739,6 +1751,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		
 		$this->footnotes = array();
 		$this->footnotes_ordered = array();
+		$this->footnotes_numbers = array();
 		$this->abbr_desciptions = array();
 		$this->abbr_word_re = '';
 		$this->footnote_counter = 1;
@@ -1757,6 +1770,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 	#
 		$this->footnotes = array();
 		$this->footnotes_ordered = array();
+		$this->footnotes_numbers = array();
 		$this->abbr_desciptions = array();
 		$this->abbr_word_re = '';
 		
@@ -1767,20 +1781,20 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 	### HTML Block Parser ###
 	
 	# Tags that are always treated as block tags:
-	var $block_tags_re = 'p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|address|form|fieldset|iframe|hr|legend';
-	
-	# Tags treated as block tags only if the opening tag is alone on it's line:
-	var $context_block_tags_re = 'script|noscript|math|ins|del';
+	var $block_tags_re = 'p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|address|form|fieldset|iframe|hr|legend|article|section|nav|aside|hgroup|header|footer|figcaption';
+						   
+	# Tags treated as block tags only if the opening tag is alone on its line:
+	var $context_block_tags_re = 'script|noscript|ins|del|iframe|object|source|track|param|math|svg|canvas|audio|video';
 	
 	# Tags where markdown="1" default to span mode:
 	var $contain_span_tags_re = 'p|h[1-6]|li|dd|dt|td|th|legend|address';
 	
 	# Tags which must not have their contents modified, no matter where 
 	# they appear:
-	var $clean_tags_re = 'script|math';
+	var $clean_tags_re = 'script|math|svg';
 	
 	# Tags that do not need to be closed.
-	var $auto_close_tags_re = 'hr|img';
+	var $auto_close_tags_re = 'hr|img|param|source|track';
 	
 
 	function hashHTMLBlocks($text) {
@@ -1795,10 +1809,12 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 	#
 	# This works by calling _HashHTMLBlocks_InMarkdown, which then calls
 	# _HashHTMLBlocks_InHTML when it encounter block tags. When the markdown="1" 
-	# attribute is found whitin a tag, _HashHTMLBlocks_InHTML calls back
+	# attribute is found within a tag, _HashHTMLBlocks_InHTML calls back
 	#  _HashHTMLBlocks_InMarkdown to handle the Markdown syntax within the tag.
 	# These two functions are calling each other. It's recursive!
 	#
+		if ($this->no_markup)  return $text;
+
 		#
 		# Call the HTML-in-Markdown hasher.
 		#
@@ -1848,7 +1864,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		# Regex to match any tag.
 		$block_tag_re =
 			'{
-				(					# $2: Capture hole tag.
+				(					# $2: Capture whole tag.
 					</?					# Any opening or closing tag.
 						(?>				# Tag name.
 							'.$this->block_tags_re.'			|
@@ -2066,7 +2082,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		
 		# Regex to match any tag.
 		$tag_re = '{
-				(					# $2: Capture hole tag.
+				(					# $2: Capture whole tag.
 					</?					# Any opening or closing tag.
 						[\w:$]+			# Tag name.
 						(?:
@@ -2193,7 +2209,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 					if (!$span_mode)	$parsed .= "\n\n$block_text\n\n";
 					else				$parsed .= "$block_text";
 					
-					# Start over a new block.
+					# Start over with a new block.
 					$block_text = "";
 				}
 				else $block_text .= $tag;
@@ -2212,8 +2228,8 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 
 	function hashClean($text) {
 	#
-	# Called whenever a tag must be hashed when a function insert a "clean" tag
-	# in $text, it pass through this function and is automaticaly escaped, 
+	# Called whenever a tag must be hashed when a function inserts a "clean" tag
+	# in $text, it passes through this function and is automaticaly escaped, 
 	# blocking invalid nested overlap.
 	#
 		return $this->hashPart($text, 'C');
@@ -2751,11 +2767,15 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		# Create footnote marker only if it has a corresponding footnote *and*
 		# the footnote hasn't been used by another marker.
 		if (isset($this->footnotes[$node_id])) {
-			# Transfert footnote content to the ordered list.
-			$this->footnotes_ordered[$node_id] = $this->footnotes[$node_id];
-			unset($this->footnotes[$node_id]);
+			$num =& $this->footnotes_numbers[$node_id];
+			if (!isset($num))
+			{
+				# Transfer footnote content to the ordered list and give it its
+				# number
+				$this->footnotes_ordered[$node_id] = $this->footnotes[$node_id];
+				$num = $this->footnote_counter++;
+			}
 			
-			$num = $this->footnote_counter++;
 			$attr = " rel=\"footnote\"";
 			if ($this->fn_link_class != "") {
 				$class = $this->fn_link_class;
@@ -2858,7 +2878,7 @@ such as tables and definition list.
 
 Markdown is a text-to-HTML filter; it translates an easy-to-read /
 easy-to-write structured text format into HTML. Markdown's text format
-is most similar to that of plain text email, and supports features such
+is mostly similar to that of plain text email, and supports features such
 as headers, *emphasis*, code blocks, blockquotes, and links.
 
 Markdown's syntax is designed not as a generic markup language, but
