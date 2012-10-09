@@ -430,7 +430,7 @@ reMarked = function(opts) {
 
 					if (cfg.gfm_code) {
 						var cls = this.e.getAttribute("class");
-						cls = (cls || "").split(" ")[0]);
+						cls = (cls || "").split(" ")[0];
 
 						if (cls.indexOf("lang-") === 0)			// marked uses "lang-" prefix now
 							cls = cls.substr(5);
