@@ -16,11 +16,6 @@
 	<script src="../vendor/marked.js"></script>
 	<script src="../bootstrap.js"></script>
 	<script>
-		marked.setOptions({
-			gfm: true,
-			sanitize: false,
-		});
-
 		$(document).ready(function(){
 			$.each(list, function(i, v) {
 				$.get('../md_src/' + v + '.md', function(data) {
