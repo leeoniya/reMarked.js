@@ -26,6 +26,7 @@ reMarked = function(opts) {
 		gfm_tbls:	true,			// markdown-extra tables
 		tbl_edges:	false,			// show side edges on tables
 		hash_lnks:	false,			// anchors w/hash hrefs as links
+		br_only:	false,			// avoid using "  " as line break indicator
 	};
 
 	extend(cfg, opts);
@@ -382,8 +383,9 @@ reMarked = function(opts) {
 
 		lib.br = lib.inl.extend({
 			wrap: ["", function() {
+				var end = cfg.br_only ? "<br>" : "  ";
 				// br in headers output as html
-				return this.p instanceof lib.h ? "<br>" : "  \n";
+				return this.p instanceof lib.h ? "<br>" : end + "\n";
 			}]
 		});
 

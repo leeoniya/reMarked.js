@@ -25,6 +25,7 @@ var options = {
     gfm_tbls:   true,     // markdown-extra tables
     tbl_edges:  false,    // show side edges on tables
     hash_lnks:  false,    // anchors w/hash hrefs as links
+    br_only:    false,    // avoid using "  " as line break indicator
 };
 
 var reMarker = new reMarked(options);
