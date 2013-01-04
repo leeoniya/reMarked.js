@@ -82,14 +82,9 @@ block.gfm.paragraph = replace(block.paragraph)
  */
 
 block.tables = merge({}, block.gfm, {
-  nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*\n)*)\n*/,
-  table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*\n)*)\n*/,
-  paragraph: /^/
+  nptable: /^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,
+  table: /^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/
 });
-
-block.tables.paragraph = replace(block.gfm.paragraph)
-  ('$)|', '$)|' + block.gfm.table.source + '|' + block.gfm.nptable.source + '|')
-  ();
 
 /**
  * Block Lexer
@@ -189,8 +184,8 @@ Lexer.prototype.token = function(src, top) {
 
       item = {
         type: 'table',
-        header: cap[1].replace(/(^ *| *\| *$)/g, '').split(/ *\| */),
-        align: cap[2].replace(/(^ *|\| *$)/g, '').split(/ *\| */),
+        header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+        align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
         cells: cap[3].replace(/\n$/, '').split('\n')
       };
 
@@ -349,9 +344,9 @@ Lexer.prototype.token = function(src, top) {
 
       item = {
         type: 'table',
-        header: cap[1].replace(/(^ *| *\| *$)/g, '').split(/ *\| */),
-        align: cap[2].replace(/(^ *|\| *$)/g, '').split(/ *\| */),
-        cells: cap[3].replace(/( *\| *)?\n$/, '').split('\n')
+        header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+        align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
+        cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n')
       };
 
       for (i = 0; i < item.align.length; i++) {
@@ -368,7 +363,7 @@ Lexer.prototype.token = function(src, top) {
 
       for (i = 0; i < item.cells.length; i++) {
         item.cells[i] = item.cells[i]
-          .replace(/(^ *\| *| *\| *$)/g, '')
+          .replace(/^ *\| *| *\| *$/g, '')
           .split(/ *\| */);
       }
 
@@ -622,7 +617,7 @@ InlineLexer.prototype.output = function(src) {
       continue;
     }
 
-    // del
+    // del (gfm)
     if (cap = this.rules.del.exec(src)) {
       src = src.substring(cap[0].length);
       out += '<del>'
@@ -756,10 +751,10 @@ Parser.prototype.tok = function() {
     }
     case 'code': {
       if (this.options.highlight) {
-        this.token.code = this.options.highlight(this.token.text, this.token.lang);
-        if (this.token.code != null && this.token.code !== this.token.text) {
+        var code = this.options.highlight(this.token.text, this.token.lang);
+        if (code != null && code !== this.token.text) {
           this.token.escaped = true;
-          this.token.text = this.token.code;
+          this.token.text = code;
         }
       }
 
@@ -916,7 +911,7 @@ function merge(obj) {
     , target
     , key;
 
-  for (i = 1; i < arguments.length; i++) {
+  for (; i < arguments.length; i++) {
     target = arguments[i];
     for (key in target) {
       if (Object.prototype.hasOwnProperty.call(target, key)) {
