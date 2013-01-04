@@ -22,6 +22,7 @@ reMarked = function(opts) {
 		indnt_str:	["    ","\t","  "][0],	// indentation string
 		bold_char:	"*_"[0],		// char used for strong
 		emph_char:	"*_"[1],		// char used for em
+		gfm_del:	true,			// ~~strikeout~~ for <del>strikeout</del>
 		gfm_tbls:	true,			// markdown-extra tables
 		tbl_edges:	false,			// show side edges on tables
 		hash_lnks:	false,			// anchors w/hash hrefs as links
@@ -377,7 +378,7 @@ reMarked = function(opts) {
 
 			lib.i = lib.em.extend();
 
-		lib.del = lib.tinl.extend();
+		lib.del = cfg.gfm_del ? lib.inl.extend({wrap: "~~"}) : lib.tinl.extend();
 
 		lib.br = lib.inl.extend({
 			wrap: ["", function() {
