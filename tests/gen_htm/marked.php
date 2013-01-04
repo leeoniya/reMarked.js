@@ -12,7 +12,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>marked.js gen</title>
-	<script src="../vendor/jquery-1.8.2.min.js"></script>
+	<script src="../vendor/jquery-1.8.3.min.js"></script>
 	<script src="../vendor/marked.js"></script>
 	<script src="../bootstrap.js"></script>
 	<script>
