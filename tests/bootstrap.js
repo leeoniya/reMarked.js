@@ -14,5 +14,6 @@ var list = [
 	"PEG.js",
 	"Plate.js",
 	"Resource-Tree",
-	"TaskList"
+	"TaskList",
+	"tables"
 ];
