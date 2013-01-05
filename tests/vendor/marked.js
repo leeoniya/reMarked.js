@@ -1,16 +1,13 @@
 /**
- * marked - a markdown parser (https://github.com/chjj/marked)
+ * marked - a markdown parser
  * Copyright (c) 2011-2013, Christopher Jeffrey. (MIT Licensed)
+ * https://github.com/chjj/marked
  */
 
 ;(function() {
 
 /**
  * Block-Level Grammar
- */
-
-/**
- * Normal Block Grammar
  */
 
 var block = {
@@ -62,6 +59,10 @@ block.paragraph = replace(block.paragraph)
   ('def', block.def)
   ();
 
+/**
+ * Normal Block Grammar
+ */
+
 block.normal = merge({}, block);
 
 /**
@@ -105,12 +106,24 @@ function Lexer(options) {
   }
 }
 
+/**
+ * Expose Block Rules
+ */
+
 Lexer.rules = block;
+
+/**
+ * Static Lex Method
+ */
 
 Lexer.lex = function(src, options) {
   var lexer = new Lexer(options);
   return lexer.lex(src);
 };
+
+/**
+ * Preprocessing
+ */
 
 Lexer.prototype.lex = function(src) {
   src = src
@@ -121,6 +134,10 @@ Lexer.prototype.lex = function(src) {
 
   return this.token(src, true);
 };
+
+/**
+ * Lexing
+ */
 
 Lexer.prototype.token = function(src, top) {
   var src = src.replace(/^ +$/gm, '')
@@ -301,7 +318,7 @@ Lexer.prototype.token = function(src, top) {
         });
 
         // Recurse.
-        this.token(item);
+        this.token(item, false);
 
         this.tokens.push({
           type: 'list_item_end'
@@ -406,10 +423,6 @@ Lexer.prototype.token = function(src, top) {
  * Inline-Level Grammar
  */
 
-/**
- * Normal Inline Grammar
- */
-
 var inline = {
   escape: /^\\([\\`*{}\[\]()#+\-.!_>|])/,
   autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
@@ -426,17 +439,21 @@ var inline = {
   text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/
 };
 
-inline._linkInside = /(?:\[[^\]]*\]|[^\]]|\](?=[^\[]*\]))*/;
-inline._linkHref = /\s*<?([^\s]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;
+inline._inside = /(?:\[[^\]]*\]|[^\]]|\](?=[^\[]*\]))*/;
+inline._href = /\s*<?([^\s]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;
 
 inline.link = replace(inline.link)
-  ('inside', inline._linkInside)
-  ('href', inline._linkHref)
+  ('inside', inline._inside)
+  ('href', inline._href)
   ();
 
 inline.reflink = replace(inline.reflink)
-  ('inside', inline._linkInside)
+  ('inside', inline._inside)
   ();
+
+/**
+ * Normal Inline Grammar
+ */
 
 inline.normal = merge({}, inline);
 
@@ -457,7 +474,10 @@ inline.gfm = merge({}, inline.normal, {
   escape: replace(inline.escape)('])', '~])')(),
   url: /^(https?:\/\/[^\s]+[^.,:;"')\]\s])/,
   del: /^~{2,}([\s\S]+?)~{2,}/,
-  text: /^[\s\S]+?(?=[\\<!\[_*`~]|https?:\/\/| {2,}\n|$)/
+  text: replace(inline.text)
+    (']|', '~]|')
+    ('|', '|https?://|')
+    ()
 });
 
 /**
@@ -494,12 +514,24 @@ function InlineLexer(links, options) {
   }
 }
 
+/**
+ * Expose Inline Rules
+ */
+
 InlineLexer.rules = inline;
+
+/**
+ * Static Lexing/Compiling Method
+ */
 
 InlineLexer.output = function(src, links, opt) {
   var inline = new InlineLexer(links, opt);
   return inline.output(src);
 };
+
+/**
+ * Lexing/Compiling
+ */
 
 InlineLexer.prototype.output = function(src) {
   var out = ''
@@ -642,6 +674,10 @@ InlineLexer.prototype.output = function(src) {
   return out;
 };
 
+/**
+ * Compile Link
+ */
+
 InlineLexer.prototype.outputLink = function(cap, link) {
   if (cap[0][0] !== '!') {
     return '<a href="'
@@ -670,6 +706,10 @@ InlineLexer.prototype.outputLink = function(cap, link) {
   }
 };
 
+/**
+ * Mangle Links
+ */
+
 InlineLexer.prototype.mangle = function(text) {
   var out = ''
     , l = text.length
@@ -697,10 +737,18 @@ function Parser(options) {
   this.options = options || marked.defaults;
 }
 
+/**
+ * Static Parse Method
+ */
+
 Parser.parse = function(src, options) {
   var parser = new Parser(options);
   return parser.parse(src);
 };
+
+/**
+ * Parse Loop
+ */
 
 Parser.prototype.parse = function(src) {
   this.inline = new InlineLexer(src.links, this.options);
@@ -714,13 +762,25 @@ Parser.prototype.parse = function(src) {
   return out;
 };
 
+/**
+ * Next Token
+ */
+
 Parser.prototype.next = function() {
   return this.token = this.tokens.pop();
 };
 
+/**
+ * Preview Next Token
+ */
+
 Parser.prototype.peek = function() {
   return this.tokens[this.tokens.length-1] || 0;
 };
+
+/**
+ * Parse Text Tokens
+ */
 
 Parser.prototype.parseText = function() {
   var body = this.token.text;
@@ -731,6 +791,10 @@ Parser.prototype.parseText = function() {
 
   return this.inline.output(body);
 };
+
+/**
+ * Parse Current Token
+ */
 
 Parser.prototype.tok = function() {
   switch (this.token.type) {
