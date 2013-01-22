@@ -21,9 +21,9 @@ var block = {
   blockquote: /^( *>[^\n]+(\n[^\n]+)*\n*)+/,
   list: /^( *)(bull) [\s\S]+?(?:hr|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
   html: /^ *(?:comment|closed|closing) *(?:\n{2,}|\s*$)/,
-  def: /^ *\[([^\]]+)\]: *([^\s]+)(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
+  def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
   table: noop,
-  paragraph: /^([^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+\n*/,
+  paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
   text: /^[^\n]+/
 };
 
@@ -144,6 +144,8 @@ Lexer.prototype.token = function(src, top) {
     , next
     , loose
     , cap
+    , bull
+    , b
     , item
     , space
     , i
@@ -281,6 +283,11 @@ Lexer.prototype.token = function(src, top) {
       // Get each top-level item.
       cap = cap[0].match(this.rules.item);
 
+      // Get bullet.
+      if (this.options.smartLists) {
+        bull = block.bullet.exec(cap[0])[0];
+      }
+
       next = false;
       l = cap.length;
       i = 0;
@@ -300,6 +307,16 @@ Lexer.prototype.token = function(src, top) {
           item = !this.options.pedantic
             ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
             : item.replace(/^ {1,4}/gm, '');
+        }
+
+        // Determine whether the next list item belongs here.
+        // Backpedal if it does not belong in this list.
+        if (this.options.smartLists && i !== l - 1) {
+          b = block.bullet.exec(cap[i+1])[0];
+          if (bull !== b && !(bull[1] === '.' && b[1] === '.')) {
+            src = cap.slice(i + 1).join('\n') + src;
+            i = l - 1;
+          }
         }
 
         // Determine whether item is loose or not.
@@ -394,7 +411,9 @@ Lexer.prototype.token = function(src, top) {
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'paragraph',
-        text: cap[0]
+        text: cap[1][cap[1].length-1] === '\n'
+          ? cap[1].slice(0, -1)
+          : cap[1]
       });
       continue;
     }
@@ -424,7 +443,7 @@ Lexer.prototype.token = function(src, top) {
  */
 
 var inline = {
-  escape: /^\\([\\`*{}\[\]()#+\-.!_>|])/,
+  escape: /^\\([\\`*{}\[\]()#+\-.!_>])/,
   autolink: /^<([^ >]+(@|:\/)[^ >]+)>/,
   url: noop,
   tag: /^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,
@@ -433,7 +452,7 @@ var inline = {
   nolink: /^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,
   strong: /^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,
   em: /^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
-  code: /^(`+)([\s\S]*?[^`])\1(?!`)/,
+  code: /^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,
   br: /^ {2,}\n(?!\s*$)/,
   del: noop,
   text: /^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/
@@ -471,9 +490,9 @@ inline.pedantic = merge({}, inline.normal, {
  */
 
 inline.gfm = merge({}, inline.normal, {
-  escape: replace(inline.escape)('])', '~])')(),
-  url: /^(https?:\/\/[^\s]+[^.,:;"')\]\s])/,
-  del: /^~{2,}([\s\S]+?)~{2,}/,
+  escape: replace(inline.escape)('])', '~|])')(),
+  url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
+  del: /^~~(?=\S)([\s\S]*?\S)~~/,
   text: replace(inline.text)
     (']|', '~]|')
     ('|', '|https?://|')
@@ -828,7 +847,8 @@ Parser.prototype.tok = function() {
 
       return '<pre><code'
         + (this.token.lang
-        ? ' class="lang-'
+        ? ' class="'
+        + this.options.langPrefix
         + this.token.lang
         + '"'
         : '')
@@ -993,6 +1013,7 @@ function merge(obj) {
 
 function marked(src, opt) {
   try {
+    if (opt) opt = merge({}, marked.defaults, opt);
     return Parser.parse(Lexer.lex(src, opt), opt);
   } catch (e) {
     e.message += '\nPlease report this to https://github.com/chjj/marked.';
@@ -1009,7 +1030,7 @@ function marked(src, opt) {
 
 marked.options =
 marked.setOptions = function(opt) {
-  marked.defaults = opt;
+  merge(marked.defaults, opt);
   return marked;
 };
 
@@ -1019,8 +1040,10 @@ marked.defaults = {
   breaks: false,
   pedantic: false,
   sanitize: false,
+  smartLists: false,
   silent: false,
-  highlight: null
+  highlight: null,
+  langPrefix: 'lang-'
 };
 
 /**
@@ -1038,7 +1061,7 @@ marked.inlineLexer = InlineLexer.output;
 
 marked.parse = marked;
 
-if (typeof module !== 'undefined') {
+if (typeof exports === 'object') {
   module.exports = marked;
 } else if (typeof define === 'function' && define.amd) {
   define(function() { return marked; });
