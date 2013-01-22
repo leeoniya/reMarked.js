@@ -1,20 +1,12 @@
 <h1>AACL</h1>
-<p>AACL is (yet) Another ACL library for Kohana 3.
-
-</p>
+<p>AACL is (yet) Another ACL library for Kohana 3.</p>
 <h2>Why another one?</h2>
 <p>Simply because none really fitted my needs. I don&#39;t for a minute suggest it is inherently better than any others or that you should use this instead of X library - it is just a library that fits my needs.
-You are free to use it and/or modify it if you think it will work well for you.
-
-</p>
+You are free to use it and/or modify it if you think it will work well for you.</p>
 <h3>My Aims</h3>
 <p>What makes my needs so incompatible with other libraries? Well, my aims for an ACL are given below. I&#39;ve not found anything else that was close enough to warrant forking, 
-especially since one of my core aims is simplicity and small amounts of clear code.
-
-</p>
-<p>I need an ACL to:
-
-</p>
+especially since one of my core aims is simplicity and small amounts of clear code.</p>
+<p>I need an ACL to:</p>
 <ul>
 <li><p>define <em>all</em> rules in database so that applications can provide a UI for simple but fine-grained control of user&#39;s privileges;</p>
 </li>
@@ -32,22 +24,14 @@ especially since one of my core aims is simplicity and small amounts of clear co
 </ul>
 <p>If you think you know of an ACL library that fits these needs already then feel free to let me know I&#39;ve missed it but 
 I&#39;ve not found anything that really got close enough to warrant forking. I will however credit <a href="http://github.com/ollym">Olly Morgan</a> for writing such a simple and neat ACL library that, despite ultimately not being quite what I need, inspired me to
-write this.
-
-</p>
+write this.</p>
 <h2>User Guide</h2>
-<p>This user guide is intended to explain the (hopefully simple) concepts and implementation of AACL. In each section, concepts go first, then implementation then examples.
-
-</p>
+<p>This user guide is intended to explain the (hopefully simple) concepts and implementation of AACL. In each section, concepts go first, then implementation then examples.</p>
 <h3>Auth integration: Users and Roles</h3>
 <p>AACL uses <a href="http://github.com/kohanan/auth">kohana auth</a> module with no additions or modifications. 
 Since I use Sprig exclusively, I also use my <a href="http://github.com/banks/sprig-auth">Sprig Auth Driver</a> but if you want to mix and match, 
-an ORM User/Auth driver should work just as well.
-
-</p>
-<p>This means:
-
-</p>
+an ORM User/Auth driver should work just as well.</p>
+<p>This means:</p>
 <ol>
 <li><p>Users and roles have a many-to-many mapping</p>
 </li>
@@ -60,21 +44,13 @@ than requiring end-users to understand that it is different from other roles.</p
 </ol>
 <h3>Sprig and other ORMs</h3>
 <p>AACL ships with a Sprig based Rule model and Sprig based class for easily turning Sprig models into Access Controlled Resources. 
-It should be relatively trivial to modify the library to work with other ORMs but as this is only likely to be used by me for now, a flexible driver system seems unnecessary.
-
-</p>
+It should be relatively trivial to modify the library to work with other ORMs but as this is only likely to be used by me for now, a flexible driver system seems unnecessary.</p>
 <h3>Concept: ACL Resources</h3>
-<p>Any PHP class that implements <code>AACL_Resource</code> interface is considered a resource. This means that just by implementing it, rules can be added based on that object.
-
-</p>
+<p>Any PHP class that implements <code>AACL_Resource</code> interface is considered a resource. This means that just by implementing it, rules can be added based on that object.</p>
 <p>AACL ships with two abstract Resource classes <code>Controller_AACL</code> and <code>Sprig_AACL</code> which allow any extending controllers or models to automatically become valid resources
-against which access rules can be created.
-
-</p>
+against which access rules can be created.</p>
 <h4>AACL_Resource Interface</h4>
-<p>The <code>AACL_Resource</code> interface defines four methods:
-
-</p>
+<p>The <code>AACL_Resource</code> interface defines four methods:</p>
 <ul>
 <li><p><strong>public function acl_id()</strong></p>
 <p> Must return a string that uniquely identifies the current object as a resource.
@@ -107,17 +83,11 @@ The format of this array is <code>array(&#39;condition_id&#39; =&gt; &#39;Nice d
 </ul>
 <p>Note that the <code>Model_AACL_Rule</code> itself extends <code>Sprig_AACL</code>. Instead of the default CRUD actions though it just specifies <code>grant</code> and <code>revoke</code> actions. This means you can
 create rules about whether a role can itsef grant or revoke access! Note that the checking is not automatic though. That would prevent installers from creating rules or similar
-due to not having a user logged in yet! It is still up to the developer to check the user has permission to grant or revoke using check().
-
-</p>
+due to not having a user logged in yet! It is still up to the developer to check the user has permission to grant or revoke using check().</p>
 <h3>Resource Conditions</h3>
 <p><code>AACL_Resource</code> objects can define conditions which allow rules to provide fine-grained control. Since conditions are resource specific, only conditions defined by the resource
-are available when defining rules for that resource.
-
-</p>
-<p>A typical and common use for this is allowing Users to edit their own posts but not others&#39;. The implementation for such a condition is given below.
-
-</p>
+are available when defining rules for that resource.</p>
+<p>A typical and common use for this is allowing Users to edit their own posts but not others&#39;. The implementation for such a condition is given below.</p>
 <pre><code>// Sprig_AACL defines the AACL_Request interface but with no available conditions (since they will be model-specifc)
 // We don&#39;t need to redefine the acl_id() or acl_actions() methods as long as we are happy with the defaults
 
@@ -152,32 +122,16 @@ class Model_Post extends Sprig_AACL
     }
 }</code></pre>
 <p>As you have probably guessed, <code>$user</code> is populated by the logged in user object when the rule is evaluated so conditions allow a neat 
-and simple way of adding fine-grained user/resource specific rules in a general way.
-
-</p>
+and simple way of adding fine-grained user/resource specific rules in a general way.</p>
 <h3>AACL Rules</h3>
-<p>Once you have some Controllers, Models or other objects defined as AACL_Resources, you can grant access to specific user roles.
-
-</p>
+<p>Once you have some Controllers, Models or other objects defined as AACL_Resources, you can grant access to specific user roles.</p>
 <p>The first major concept here is that rules are ONLY &#39;allow&#39; type rules. 
-This is to keep things simple and to prevent the need for having a role hierarchy to decide which rules take precedence.
-
-</p>
-<p>Once <code>AACL::check($resource)</code> has been called, the user must be granted access to <code>$resource</code> by at least one rule otherwise the check fails.
-
-</p>
-<p>Rules do have a simple inheritance to them in that they can be made more or less specific by their definitions.
-
-</p>
-<p>A rule is defined using the <code>grant()</code> function described below:
-
-</p>
-<p><strong>AACL::grant(mixed $role, string $resource_id, string $action = NULL, string $condition = NULL)</strong>
-
-</p>
-<p>Params:
-
-</p>
+This is to keep things simple and to prevent the need for having a role hierarchy to decide which rules take precedence.</p>
+<p>Once <code>AACL::check($resource)</code> has been called, the user must be granted access to <code>$resource</code> by at least one rule otherwise the check fails.</p>
+<p>Rules do have a simple inheritance to them in that they can be made more or less specific by their definitions.</p>
+<p>A rule is defined using the <code>grant()</code> function described below:</p>
+<p><strong>AACL::grant(mixed $role, string $resource_id, string $action = NULL, string $condition = NULL)</strong></p>
+<p>Params:</p>
 <ul>
 <li><p><strong>$role</strong></p>
 <p> Can be either a <code>Model_Role</code> object or a string role name. This is the role that the rule applies to.</p>
@@ -198,9 +152,7 @@ This is to keep things simple and to prevent the need for having a role hierarch
  returned by <code>$resource-&gt;acl_conditions()</code> then the rule will NEVER match!</p>
 </li>
 </ul>
-<p>To grant access to multiple (but not all) actions of a resource, multiple rules should be used. For example:
-
-</p>
+<p>To grant access to multiple (but not all) actions of a resource, multiple rules should be used. For example:</p>
 <pre><code>AACL::grant(&#39;admin&#39;, &#39;m:post&#39;);                         // Grant all rights to admins for post objects
 
 AACL::grant(&#39;moderator&#39;, &#39;m:post&#39;, &#39;view&#39;);             // Moderators can view...
@@ -213,9 +165,7 @@ AACL::grant(&#39;sales&#39;, &#39;m:page.32&#39;, &#39;edit&#39;);              
                                                         // for one of their campaigns...) but no other pages</code></pre>
 <h4>Revoking access</h4>
 <p><code>AACL::revoke()</code> is used to remove rules and accepts exactly the same arguments used to grant the rules. 
-Note that the arguments don&#39;t have to exactly match a defined rule to delete it. For example
-
-</p>
+Note that the arguments don&#39;t have to exactly match a defined rule to delete it. For example</p>
 <pre><code>AACL::grant(&#39;staff&#39;, &#39;m:post&#39;, &#39;edit&#39;);                    // 1
 AACL::grant(&#39;staff&#39;, &#39;m:post&#39;, &#39;delete&#39;);                // 2
 AACL::grant(&#39;staff&#39;, &#39;m:comment&#39;, &#39;delete&#39;);            // 3
@@ -224,19 +174,11 @@ AACL::revoke(&#39;staff&#39;, &#39;m:post&#39;, &#39;edit&#39;);                
 AACL::revoke(&#39;staff&#39;, &#39;m:post&#39;);                        // Removes 1 AND 2 from above
 AACL::revoke(&#39;staff&#39;, &#39;*&#39;);                                // Removes all rules for &#39;staff&#39; (i.e. they now have access to nothing)</code></pre>
 <h4>Rule Specificity</h4>
-<p>If you grant a rule which is <em>more</em> permissive than one or more rules that currently exist, the current rules will be automatically deleted since they are now logically useless.
-
-</p>
+<p>If you grant a rule which is <em>more</em> permissive than one or more rules that currently exist, the current rules will be automatically deleted since they are now logically useless.</p>
 <h3>Checking Permissions</h3>
-<p>One of the key requirements for this library is to make checking access rights as simple and clear as possible.
-
-</p>
-<p>All checking is done using <code>AACL::check()</code> described below:
-
-</p>
-<p><strong>AACL::check(AACL_Resource $resource, $action = NULL)</strong>
-
-</p>
+<p>One of the key requirements for this library is to make checking access rights as simple and clear as possible.</p>
+<p>All checking is done using <code>AACL::check()</code> described below:</p>
+<p><strong>AACL::check(AACL_Resource $resource, $action = NULL)</strong></p>
 <ul>
 <li><p><strong>$resource</strong> </p>
 <p> The AACL_Resource being requested. <code>check()</code> will attempt to get the current action from the resource automatically
@@ -267,19 +209,11 @@ AACL::revoke(&#39;staff&#39;, &#39;*&#39;);                                // Re
 </li>
 </ul>
 <h4>Failing check()</h4>
-<p>If the user doesn&#39;t have access to the required object and action, AACL throws an exception which must be handled to resolve the issue.
-
-</p>
-<p>If the user isn&#39;t logged in, a <code>AACL_Exception_401</code> is thrown which should be caught and the user re-directed to a login form.
-
-</p>
+<p>If the user doesn&#39;t have access to the required object and action, AACL throws an exception which must be handled to resolve the issue.</p>
+<p>If the user isn&#39;t logged in, a <code>AACL_Exception_401</code> is thrown which should be caught and the user re-directed to a login form.</p>
 <p>If the user is logged in but lacks the privileges to access a resource, an <code>AACL_Exception_403</code> is throw. 
-It is left to the developer to catch this and display an appropriate message.
-
-</p>
-<p>These should both be caught in <code>bootstrap.php</code> something like this:
-
-</p>
+It is left to the developer to catch this and display an appropriate message.</p>
+<p>These should both be caught in <code>bootstrap.php</code> something like this:</p>
 <pre><code>$request = Request::instance($uri);
 
 try
@@ -300,16 +234,10 @@ echo $request
         -&gt;response;</code></pre>
 <h3>Listing Resources</h3>
 <p>A major motivation for this library is to make it easy to create Rules using a UI. To facilitate this, all potential resources defined in the application can be found using
-<code>AACL::list_resources()</code>. This returns a multi-dimensional array listing all the resources and any actions or conditions they define.
-
-</p>
+<code>AACL::list_resources()</code>. This returns a multi-dimensional array listing all the resources and any actions or conditions they define.</p>
 <p>It works by scanning the file system and using reflection so in a big app this is likely to take some time. I feel that is not a big deal here though as it should only ever be done in 
-admin control panels not in public parts of the app and it allows a very powerful system that doesn&#39;t require maintaining lenthly and complex mappings of classes and resources.
-
-</p>
+admin control panels not in public parts of the app and it allows a very powerful system that doesn&#39;t require maintaining lenthly and complex mappings of classes and resources.</p>
 <p>Note that <code>list_resources()</code> will only return the basic types in the case of models, not every possible model id. In other words you will get a single entry 
-for <code>m:post</code> rather than <code>m:post.1, m:post.2, ...</code>. It is left for the developer to retrieve this data if necessary for a UI.
-
-</p>
+for <code>m:post</code> rather than <code>m:post.1, m:post.2, ...</code>. It is left for the developer to retrieve this data if necessary for a UI.</p>
 <h3>UI</h3>
 <p>A basic rule management UI will hopefully be added to the module at some point to help get started. It will naturally be disabled in all but &#39;developement&#39; environment.</p>
