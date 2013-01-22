@@ -3,13 +3,9 @@
 system. Resource-Tree simplifies the process of turning data into a
 usable form. It creates an easy to access tree from files and
 directories; and also provides a convenient means for &quot;freeing&quot; data
-after use.
-
-</p>
+after use.</p>
 <h2>Code Example</h2>
-<p>Where <code>/path/to/file/or/dir/</code> has the directory structure:
-
-</p>
+<p>Where <code>/path/to/file/or/dir/</code> has the directory structure:</p>
 <pre><code>dir
  |- branch
  |   |- sub-branch
@@ -30,9 +26,7 @@ keyword corresponding to <code>FILE-NAME</code> with everything after the first
 full-stop truncated and all spaces and underscores replaced with a
 hyphen. All directories turn into branches when <code>LOAD-PATH</code> is called
 with the recursive flag set to <code>T</code> (set by default). The same
-&quot;path-name to keyword&quot; methodology is applied to directories.
-
-</p>
+&quot;path-name to keyword&quot; methodology is applied to directories.</p>
 <pre><code>(defun load-image (file-name)
   (unless (string= &quot;png&quot; (pathname-type file-name))
     (return-from load-image))
@@ -57,19 +51,13 @@ once. <code>WITH-NODES</code> creates variables bound to the specified leaves of
 the provided node. <code>NODE</code> is used to retrieve a single node (a leaf or
 branch) from the tree path given to it. After the code is run, <code>FREE</code>
 is called on <code>TREE</code> which frees all nodes in tree using
-<code>FREE-FUNCTION</code> <em>if</em> <code>FREE-FUNCTION</code> was set.
-
-</p>
+<code>FREE-FUNCTION</code> <em>if</em> <code>FREE-FUNCTION</code> was set.</p>
 <h2>Dependencies</h2>
-<p>Prerequisites:
-
-</p>
+<p>Prerequisites:</p>
 <ul>
 <li>None</li>
 </ul>
-<p>Optional:
-
-</p>
+<p>Optional:</p>
 <ul>
 <li>xlUnit (for unit tests)</li>
 </ul>
@@ -77,7 +65,5 @@ is called on <code>TREE</code> which frees all nodes in tree using
 <h3>On Unix-like Systems</h3>
 <p>Extract the source to the desired directory. Then, while in the
 appropriate ASDF systems directory execute the following command,
-where <code>../path/to/resource-tree</code> is obviously replaced as suitable:
-
-</p>
+where <code>../path/to/resource-tree</code> is obviously replaced as suitable:</p>
 <pre><code>find ../path/to/resource-tree -name &#39;*.asd&#39; -exec ln -s &#39;{}&#39; \;</code></pre>

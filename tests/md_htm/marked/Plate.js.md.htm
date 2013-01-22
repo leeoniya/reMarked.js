@@ -1,7 +1,5 @@
 <h1>Plate.js -- A Template Library</h1>
-<p>Plate is a Django Template Language implementation in Javascript. Super exciting!
-
-</p>
+<p>Plate is a Django Template Language implementation in Javascript. Super exciting!</p>
 <h2>Plate</h2>
 <ul>
 <li>Plays nicely with the event loop and async code. Plate makes it easy to parallelize your view code!</li>
@@ -12,13 +10,9 @@
 </ul>
 <h2>Can I use it in my browser?</h2>
 <p>Yes. Plate was designed to work well in the standard suite of browsers. Each minor point release will target
-compatibility with IE7+, FF3+, Chrome, and Safari 4+.
-
-</p>
+compatibility with IE7+, FF3+, Chrome, and Safari 4+.</p>
 <h2>How do I use it?</h2>
-<p>The most basic case:
-
-</p>
+<p>The most basic case:</p>
 <pre><code>var plate = require(&#39;plate&#39;),
     sys = require(&#39;sys&#39;);
 var template = new plate.Template(&#39;hello {{ world }}&#39;);
@@ -29,36 +23,26 @@ template.render({world:&#39;everyone&#39;}, function(err, data) {
 
 // outputs &quot;hello everyone&quot;</code></pre>
 <p>Plate follows the Node.js style of taking callbacks that receive an error object and a data object. If there&#39;s no
-error, <code>err</code> will be null.
-
-</p>
+error, <code>err</code> will be null.</p>
 <h2>Documentation</h2>
 <p>Plate is documented on <a href="https://github.com/chrisdickinson/plate/wiki">it&#39;s github wiki</a>. There are &quot;Getting Started&quot;
-guides for both in-browser as well as in-node environments.
-
-</p>
+guides for both in-browser as well as in-node environments.</p>
 <h2>Contributing</h2>
-<p>Got a feature you&#39;d like to add? I&#39;d love to see it. The workflow is pretty standard Github fare:
-
-</p>
+<p>Got a feature you&#39;d like to add? I&#39;d love to see it. The workflow is pretty standard Github fare:</p>
 <ul>
 <li>Fork this repository.</li>
 <li>Create a branch -- title it descriptively, please :)</li>
 <li>Work, work, work. </li>
 <li>Push your changes and submit a pull request.</li>
 </ul>
-<p>The minimum requirements for a pull request to be merged are:
-
-</p>
+<p>The minimum requirements for a pull request to be merged are:</p>
 <ul>
 <li>You&#39;ve added (passing) tests for your new code.</li>
 <li>The existing tests still pass.</li>
 <li>You&#39;ve added (or changed, as appropriate) documentation to the <code>docs/</code> folder in Markdown format.</li>
 </ul>
 <h2>Run the tests</h2>
-<p>In node:
-
-</p>
+<p>In node:</p>
 <pre><code>
 $ npm install plate
 $ npm test plate</code></pre>
@@ -104,5 +88,4 @@ $ make browsertest
 $ python -m SimpleHTTPServer &amp;
 $ open http://localhost:8000/test.html</code></pre>
 <h2>License</h2>
-<p>Licensed new BSD.
-</p>
+<p>Licensed new BSD.</p>
