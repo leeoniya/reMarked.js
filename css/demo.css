@@ -50,3 +50,20 @@
 	right: 0;
 	z-index: 10;
 }
+
+.cust-html {
+	color: red;
+	margin-top: 15px;
+}
+
+#html-inp {
+	width: 960px;
+	height: 500px;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-top: -250px;
+	margin-left: -480px;
+	padding: 5px;
+	display: none;
+}
