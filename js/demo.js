@@ -20,6 +20,7 @@ $(document).ready(function() {
 		var $t = $(this);
 
 		$rem.hide();
+		$cust.hide();
 
 		if ($t.hasClass("cust-html")) {
 			$cust.show();
