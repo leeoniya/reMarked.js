@@ -543,8 +543,8 @@ InlineLexer.rules = inline;
  * Static Lexing/Compiling Method
  */
 
-InlineLexer.output = function(src, links, opt) {
-  var inline = new InlineLexer(links, opt);
+InlineLexer.output = function(src, links, options) {
+  var inline = new InlineLexer(links, options);
   return inline.output(src);
 };
 
@@ -1018,7 +1018,9 @@ function marked(src, opt) {
   } catch (e) {
     e.message += '\nPlease report this to https://github.com/chjj/marked.';
     if ((opt || marked.defaults).silent) {
-      return 'An error occured:\n' + e.message;
+      return '<p>An error occured:</p><pre>'
+        + escape(e.message + '', true)
+        + '</pre>';
     }
     throw e;
   }
