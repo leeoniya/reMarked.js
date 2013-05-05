@@ -161,7 +161,7 @@ reMarked = function(opts) {
 					// empty whitespace handling
 					if (name == "txt" && /^\s+$/.test(n.textContent)) {
 						// ignore if first or last child (trim)
-						if (i == 0 || i == this.e.childNodes.length - 1 || !this.p)
+						if (i == 0 || i == this.e.childNodes.length - 1)
 							continue;
 
 						// only ouput when has an adjacent inline elem
