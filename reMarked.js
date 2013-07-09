@@ -80,6 +80,19 @@ reMarked = function(opts) {
 		return (e.nodeName == "#text" ? "txt" : e.nodeName).toLowerCase();
 	}
 
+	function nodeDisp(e) {
+		if (nodeName(e) == "txt") return 2;
+
+		var disp = (e.currentStyle || window.getComputedStyle(e)).display;
+
+		switch (disp) {
+			case "none": return 0;
+			case "block": return 1;
+			case "inline": case "inline-block": return 2;
+		}
+	}
+
+
 	function wrap(str, opts) {
 		var pre, suf;
 
@@ -101,6 +114,13 @@ reMarked = function(opts) {
 			var htmlstr = ctr;
 			ctr = document.createElement("div");
 			ctr.innerHTML = htmlstr;
+
+			// getComputedStyle fails in Chrome if node isn't in DOM
+			if (!nodeDisp(ctr)) {
+				var cleanup = true;
+				ctr.style.visibility = "hidden";
+				document.body.appendChild(ctr);
+			}
 		}
 		var s = new lib.tag(ctr, null, 0);
 		var re = s.rend().replace(/^[\t ]+\n/gm, "\n");
@@ -121,6 +141,9 @@ reMarked = function(opts) {
 				re += "  [" + (+k+1) + "]: " + links[k].e.href + title + "\n";
 			}
 		}
+
+		if (cleanup)
+			document.body.removeChild(ctr);
 
 		return re.replace(/^[\t ]+\n/gm, "\n");
 	};
@@ -147,15 +170,15 @@ reMarked = function(opts) {
 			var i;
 			if (this.e.hasChildNodes()) {
 				// inline elems allowing adjacent whitespace text nodes to be rendered
-				var inlRe = /^(?:a|strong|code|em|sub|sup|del|i|u|b|big|center)$/, n, name;
+				var n, name;
 				for (i in this.e.childNodes) {
 					if (!/\d+/.test(i)) continue;
 
 					n = this.e.childNodes[i];
 					name = nodeName(n);
 
-					// ignored tags
-					if (/style|script|canvas|video|audio/.test(name))
+					// hard-ignored tags, & display: none
+					if (/style|script/.test(name) || nodeDisp(n) == 0)
 						continue;
 
 					// empty whitespace handling
@@ -167,9 +190,11 @@ reMarked = function(opts) {
 						// only ouput when has an adjacent inline elem
 						var prev = this.e.childNodes[i-1],
 							next = this.e.childNodes[i+1];
-						if (prev && !nodeName(prev).match(inlRe) || next && !nodeName(next).match(inlRe))
+
+						if (prev && nodeDisp(prev) != 2 || next && nodeDisp(next) != 2)
 							continue;
 					}
+
 					if (!lib[name])
 						name = "tag";
 
