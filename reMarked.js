@@ -28,7 +28,7 @@ reMarked = function(opts) {
 		hash_lnks:	false,			// anchors w/hash hrefs as links
 		br_only:	false,			// avoid using "  " as line break indicator
 	//	comp_style: false,			// use getComputedStyle instead of hardcoded tag list to discern block/inline
-		unsup_tags: {				// handling of unsupported tags, defined in terms of desired output style. if not listed, output = innerHTML
+		unsup_tags: {				// handling of unsupported tags, defined in terms of desired output style. if not listed, output = outerHTML
 			// no output
 			ignore: "script style noscript",
 			// eg: "<tag>some content</tag>"
