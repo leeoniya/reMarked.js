@@ -27,6 +27,27 @@ reMarked = function(opts) {
 		tbl_edges:	false,			// show side edges on tables
 		hash_lnks:	false,			// anchors w/hash hrefs as links
 		br_only:	false,			// avoid using "  " as line break indicator
+	//	comp_style: false,			// use getComputedStyle instead of hardcoded tag list to discern block/inline
+		unsup_tags: {				// handling of unsupported tags, defined in terms of desired output style. if not listed, output = innerHTML
+			// no output
+			ignore: "script style noscript",
+			// eg: "<tag>some content</tag>"
+			inline: "span sup sub i u b center big",
+			// eg: "\n<tag>\n\tsome content\n</tag>"
+		//	block1: "",
+			// eg: "\n\n<tag>\n\tsome content\n</tag>"
+			block2: "div form fieldset dl header footer address article aside figure hgroup section",
+			// eg: "\n<tag>some content</tag>"
+			block1c: "dt dd caption legend figcaption output",
+			// eg: "\n\n<tag>some content</tag>"
+			block2c: "canvas audio video iframe",
+		/*	// direct remap of unsuported tags
+			convert: {
+				i: "em",
+				b: "strong"
+			}
+		*/
+		}
 	};
 
 	extend(cfg, opts);
@@ -62,9 +83,17 @@ reMarked = function(opts) {
 		return targ + rep(padStr, len - targ.length);
 	}
 
-	function otag(tag) {
+	function otag(tag, e) {
 		if (!tag) return "";
-		return "<" + tag + ">";
+
+		var buf = "<" + tag;
+
+		for (var attr, i=0, attrs=e.attributes, l=attrs.length; i<l; i++) {
+			attr = attrs.item(i);
+			buf += " " + attr.nodeName + '="' + attr.nodeValue + '"';
+		}
+
+		return buf + ">";
 	}
 
 	function ctag(tag) {
@@ -96,7 +125,24 @@ reMarked = function(opts) {
 		return pre + str + suf;
 	}
 
+	// http://stackoverflow.com/a/3819589/973988
+	function outerHTML(node) {
+		// if IE, Chrome take the internal method otherwise build one
+		return node.outerHTML || (
+		  function(n){
+			  var div = document.createElement('div'), h;
+			  div.appendChild( n.cloneNode(true) );
+			  h = div.innerHTML;
+			  div = null;
+			  return h;
+		  })(node);
+	}
+
 	this.render = function(ctr) {
+		// compile regexes
+		for (var i in cfg.unsup_tags)
+			cfg.unsup_tags[i] = new RegExp("^(?:" + (i == "inline" ? "a|em|strong|img|code|del|" : "") + cfg.unsup_tags[i].replace(/\s/g, "|") + ")$");
+
 		if (typeof ctr == "string") {
 			var htmlstr = ctr;
 			ctr = document.createElement("div");
@@ -147,7 +193,8 @@ reMarked = function(opts) {
 			var i;
 			if (this.e.hasChildNodes()) {
 				// inline elems allowing adjacent whitespace text nodes to be rendered
-				var inlRe = /^(?:a|strong|code|em|sub|sup|del|i|u|b|big|center)$/, n, name;
+				var inlRe = cfg.unsup_tags.inline, n, name;
+
 				for (i in this.e.childNodes) {
 					if (!/\d+/.test(i)) continue;
 
@@ -155,7 +202,7 @@ reMarked = function(opts) {
 					name = nodeName(n);
 
 					// ignored tags
-					if (/style|script|canvas|video|audio/.test(name))
+					if (cfg.unsup_tags.ignore.test(name))
 						continue;
 
 					// empty whitespace handling
@@ -170,8 +217,19 @@ reMarked = function(opts) {
 						if (prev && !nodeName(prev).match(inlRe) || next && !nodeName(next).match(inlRe))
 							continue;
 					}
-					if (!lib[name])
-						name = "tag";
+
+					if (!lib[name]) {
+						var unsup = cfg.unsup_tags;
+
+						if (unsup.inline.test(name))
+							name = "tinl";
+						else if (unsup.block1c.test(name))
+							name = "ctblk";
+						else if (unsup.block2c.test(name))
+							name = "tblk";
+						else
+							name = "rawhtml";
+					}
 
 					var node = new lib[name](n, this, this.c.length);
 
@@ -228,7 +286,7 @@ reMarked = function(opts) {
 
 		rend: function()
 		{
-			return wrap.call(this, (this.tagr ? otag(this.tag) : "") + wrap.call(this, pfxLines(pfxLines(this.rendK(), this.lnPfx), rep(" ", this.lnInd)), this.wrapK) + (this.tagr ? ctag(this.tag) : ""), this.wrap);
+			return wrap.call(this, (this.tagr ? otag(this.tag, this.e) : "") + wrap.call(this, pfxLines(pfxLines(this.rendK(), this.lnPfx), rep(" ", this.lnInd)), this.wrapK) + (this.tagr ? ctag(this.tag) : ""), this.wrap);
 		},
 
 		rendK: function()
@@ -251,6 +309,7 @@ reMarked = function(opts) {
 	lib.tblk = lib.blk.extend({tagr: true});
 
 	lib.cblk = lib.blk.extend({wrap: ["\n", ""]});
+
 		lib.ctblk = lib.cblk.extend({tagr: true});
 
 	lib.inl = lib.tag.extend({
@@ -264,7 +323,7 @@ reMarked = function(opts) {
 			tagr: true,
 			rend: function()
 			{
-				return otag(this.tag) + wrap.call(this, this.rendK(), this.wrap) + ctag(this.tag);
+				return otag(this.tag, this.e) + wrap.call(this, this.rendK(), this.wrap) + ctag(this.tag);
 			}
 		});
 
@@ -273,10 +332,6 @@ reMarked = function(opts) {
 				return this.supr().replace(/^\s+/gm, "");
 			}
 		});
-
-		lib.div = lib.p.extend();
-
-		lib.span = lib.inl.extend();
 
 		lib.list = lib.blk.extend({
 			expn: false,
@@ -377,8 +432,6 @@ reMarked = function(opts) {
 
 		lib.em = lib.inl.extend({wrap: cfg.emph_char});
 
-			lib.i = lib.em.extend();
-
 		lib.del = cfg.gfm_del ? lib.inl.extend({wrap: "~~"}) : lib.tinl.extend();
 
 		lib.br = lib.inl.extend({
@@ -390,18 +443,6 @@ reMarked = function(opts) {
 		});
 
 		lib.strong = lib.inl.extend({wrap: rep(cfg.bold_char, 2)});
-
-			lib.b = lib.strong.extend();
-
-		lib.dl = lib.tblk.extend({lnInd: 2});
-
-		lib.dt = lib.ctblk.extend();
-
-		lib.dd = lib.ctblk.extend();
-
-		lib.sub = lib.tinl.extend();
-
-		lib.sup = lib.tinl.extend();
 
 		lib.blockquote = lib.blk.extend({
 			lnPfx: "> ",
@@ -551,7 +592,19 @@ reMarked = function(opts) {
 					kids = kids.replace(/^\n+/, "");
 				if (this.i == this.p.c.length - 1)
 					kids = kids.replace(/\n+$/, "");
+
 				return kids;
+			}
+		});
+
+		lib.rawhtml = lib.blk.extend({
+			initK: function()
+			{
+				this.guts = outerHTML(this.e);
+			},
+			rendK: function()
+			{
+				return this.guts;
 			}
 		});
 };
