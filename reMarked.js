@@ -218,20 +218,29 @@ reMarked = function(opts) {
 							continue;
 					}
 
+					var wrap = null;
+
 					if (!lib[name]) {
 						var unsup = cfg.unsup_tags;
 
 						if (unsup.inline.test(name))
 							name = "tinl";
+						else if (unsup.block2.test(name))
+							name = "tblk";
 						else if (unsup.block1c.test(name))
 							name = "ctblk";
-						else if (unsup.block2c.test(name))
-							name = "tblk";
+						else if (unsup.block2c.test(name)) {
+							name = "ctblk";
+							wrap = ["\n\n", ""];
+						}
 						else
 							name = "rawhtml";
 					}
 
 					var node = new lib[name](n, this, this.c.length);
+
+					if (wrap)
+						node.wrap = wrap;
 
 					if (node instanceof lib.a && n.href || node instanceof lib.img) {
 						node.lnkid = links.length;
