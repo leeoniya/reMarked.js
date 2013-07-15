@@ -55,9 +55,15 @@ reMarked = function(opts) {
 	function extend(a, b) {
 		if (!b) return a;
 		for (var i in a) {
-			if (typeof b[i] !== "undefined")
+			if (typeOf(b[i]) == "Object")
+				extend(a[i], b[i]);
+			else if (typeof b[i] !== "undefined")
 				a[i] = b[i];
 		}
+	}
+
+	function typeOf(val) {
+		return Object.prototype.toString.call(val).slice(8,-1);
 	}
 
 	function rep(str, num) {
