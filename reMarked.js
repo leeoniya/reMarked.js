@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2012, Leon Sorokin
+* Copyright (c) 2013, Leon Sorokin
 * All rights reserved. (MIT Licensed)
 *
 * reMarked.js - DOM > markdown
@@ -145,9 +145,7 @@ reMarked = function(opts) {
 	}
 
 	this.render = function(ctr) {
-		// compile regexes
-		for (var i in cfg.unsup_tags)
-			cfg.unsup_tags[i] = new RegExp("^(?:" + (i == "inline" ? "a|em|strong|img|code|del|" : "") + cfg.unsup_tags[i].replace(/\s/g, "|") + ")$");
+		links = [];
 
 		if (typeof ctr == "string") {
 			var htmlstr = ctr;
@@ -156,7 +154,7 @@ reMarked = function(opts) {
 		}
 		var s = new lib.tag(ctr, null, 0);
 		var re = s.rend().replace(/^[\t ]+\n/gm, "\n");
-		if (cfg.link_list) {
+		if (cfg.link_list && links.length > 0) {
 			// hack
 			re += "\n\n";
 			var maxlen = 0;
@@ -170,7 +168,7 @@ reMarked = function(opts) {
 
 			for (var k in links) {
 				var title = links[k].e.title ? rep(" ", (maxlen + 2) - links[k].e.href.length) + '"' + links[k].e.title + '"' : "";
-				re += "  [" + (+k+1) + "]: " + links[k].e.href + title + "\n";
+				re += "  [" + (+k+1) + "]: " + (nodeName(links[k].e) == "a" ? links[k].e.href : links[k].e.src) + title + "\n";
 			}
 		}
 
@@ -436,7 +434,7 @@ reMarked = function(opts) {
 					src = this.e.getAttribute("src");
 
 				if (cfg.link_list)
-					return "[" + kids + "] [" + (this.lnkid + 1) + "]";
+					return "![" + kids + "] [" + (this.lnkid + 1) + "]";
 
 				var title = this.e.title ? ' "'+ this.e.title + '"' : "";
 
@@ -622,6 +620,10 @@ reMarked = function(opts) {
 				return this.guts;
 			}
 		});
+
+		// compile regexes
+		for (var i in cfg.unsup_tags)
+			cfg.unsup_tags[i] = new RegExp("^(?:" + (i == "inline" ? "a|em|strong|img|code|del|" : "") + cfg.unsup_tags[i].replace(/\s/g, "|") + ")$");
 };
 
 /*!
