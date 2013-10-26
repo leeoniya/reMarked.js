@@ -15,5 +15,6 @@ var list = [
 	"Plate.js",
 	"Resource-Tree",
 	"TaskList",
-	"tables"
+	"tables",
+	"tables2"
 ];
