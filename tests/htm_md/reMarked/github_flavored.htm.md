@@ -137,6 +137,7 @@ Table for two
 -------------
 
 ID | Name               | Rank             
+-- | ------------------ | -----------------
 1  | Tom Preston-Werner | Awesome          
 2  | Albert Einstein    | Nearly as awesome
 
