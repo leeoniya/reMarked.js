@@ -42,12 +42,10 @@ reMarked = function(opts) {
 			block1c: "dt dd caption legend figcaption output",
 			// eg: "\n\n<tag>some content</tag>"
 			block2c: "canvas audio video iframe",
-		/*	// direct remap of unsuported tags
-			convert: {
-				i: "em",
-				b: "strong"
-			}
-		*/
+		},
+		tag_remap: {				// remap of variants or deprecated tags to internal classes
+			"i": "em",
+			"b": "strong"
 		}
 	};
 
@@ -233,6 +231,10 @@ reMarked = function(opts) {
 
 					n = this.e.childNodes[i];
 					name = nodeName(n);
+
+					// remap of variants
+					if (name in cfg.tag_remap)
+						name = cfg.tag_remap[name];
 
 					// ignored tags
 					if (cfg.unsup_tags.ignore.test(name))
