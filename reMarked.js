@@ -93,8 +93,8 @@ reMarked = function(opts) {
 
 		var buf = "<" + tag;
 
-		for (var attr, i=0, attrs=e.attributes, l=attrs.length; i<l; i++) {
-			attr = attrs.item(i);
+		for (var attr, i = 0; i < e.attributes.length; i++) {
+			attr = e.attributes.item(i);
 			buf += " " + attr.nodeName + '="' + attr.nodeValue + '"';
 		}
 
@@ -158,14 +158,14 @@ reMarked = function(opts) {
 			re += "\n\n";
 			var maxlen = 0;
 			// get longest link href with title, TODO: use getAttribute?
-			for (var y in links) {
+			for (var y = 0; y < links.length; y++) {
 				if (!links[y].e.title) continue;
 				var len = links[y].e.href.length;
 				if (len && len > maxlen)
 					maxlen = len;
 			}
 
-			for (var k in links) {
+			for (var k = 0; k < links.length; k++) {
 				var title = links[k].e.title ? rep(" ", (maxlen + 2) - links[k].e.href.length) + '"' + links[k].e.title + '"' : "";
 				re += "  [" + (+k+1) + "]: " + (nodeName(links[k].e) == "a" ? links[k].e.href : links[k].e.src) + title + "\n";
 			}
@@ -295,7 +295,7 @@ reMarked = function(opts) {
 		rendK: function()
 		{
 			var n, buf = "";
-			for (var i in this.c) {
+			for (var i = 0; i < this.c.length; i++) {
 				n = this.c[i];
 				buf += (n.bef || "") + n.rend() + (n.aft || "");
 			}
@@ -340,7 +340,7 @@ reMarked = function(opts) {
 			if (this.p instanceof lib.li) {
 				var repl = null, spcs = kids.match(/^[\t ]+/gm);
 				if (!spcs) return kids;
-				for (var i in spcs) {
+				for (var i = 0; i < spcs.length; i++) {
 					if (repl === null || spcs[i][0].length < repl.length)
 						repl = spcs[i][0];
 				}
@@ -541,9 +541,9 @@ reMarked = function(opts) {
 			},
 			rend: function() {
 				// run prep on all cells to get max col widths
-				for (var tsec in this.c)
-					for (var row in this.c[tsec].c)
-						for (var cell in this.c[tsec].c[row].c)
+				for (var tsec = 0; tsec < this.c.length; tsec++)
+					for (var row = 0; row < this.c[tsec].c.length; row++)
+						for (var cell = 0; cell < this.c[tsec].c[row].c.length; cell++)
 							this.c[tsec].c[row].c[cell].prep();
 
 				return this.supr();
@@ -553,7 +553,7 @@ reMarked = function(opts) {
 		lib.thead = cfg.gfm_tbls ? lib.cblk.extend({
 			wrap: ["\n", function(kids) {
 				var buf = "";
-				for (var i in this.p.cols) {
+				for (var i = 0; i < this.p.cols.length; i++) {
 					var col = this.p.cols[i],
 						al = col.a[0] == "c" ? ":" : " ",
 						ar = col.a[0] == "r" || col.a[0] == "c" ? ":" : " ";
