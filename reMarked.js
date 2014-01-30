@@ -612,8 +612,10 @@ reMarked = function(opts) {
 					cols[this.i] = {w: null, a: ""};		// width and alignment
 				var col = cols[this.i];
 				col.w = Math.max(col.w || 0, this.guts.length);
-				if (this.e.align)
-					col.a = this.e.align;
+
+				var align = this.e.align || this.e.style.textAlign;
+				if (align)
+					col.a = align;
 			}
 		}) : lib.ctblk.extend();
 
