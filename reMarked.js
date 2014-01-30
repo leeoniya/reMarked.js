@@ -41,13 +41,16 @@ reMarked = function(opts) {
 			// eg: "\n<tag>some content</tag>"
 			block1c: "dt dd caption legend figcaption output",
 			// eg: "\n\n<tag>some content</tag>"
-			block2c: "canvas audio video iframe",
+			block2c: "canvas audio video iframe"
 		},
 		tag_remap: {				// remap of variants or deprecated tags to internal classes
 			"i": "em",
 			"b": "strong"
 		}
 	};
+
+	// detect and tweak some stuff for IE 7 & 8
+	var ieLte9 = document.documentMode && document.documentMode < 9;
 
 	extend(cfg, opts);
 
@@ -217,7 +220,7 @@ reMarked = function(opts) {
 
 							while (i++ < len) {
 								hcell = document.createElement("th");
-								hcell.textContent = cfg.col_pre + i;
+								hcell[ieLte9 ? "innerText" : "textContent"] = cfg.col_pre + i;
 								hrow.appendChild(hcell);
 							}
 						}
@@ -241,7 +244,7 @@ reMarked = function(opts) {
 						continue;
 
 					// empty whitespace handling
-					if (name == "txt" && /^\s+$/.test(n.textContent)) {
+					if (name == "txt" && /^\s+$/.test(n[ieLte9 ? "innerText" : "textContent"])) {
 						// ignore if first or last child (trim)
 						if (i == 0 || i == this.e.childNodes.length - 1)
 							continue;
@@ -569,7 +572,7 @@ reMarked = function(opts) {
 		lib.tfoot = cfg.gfm_tbls ? lib.cblk.extend() : lib.ctblk.extend();
 
 		lib.tr = cfg.gfm_tbls ? lib.cblk.extend({
-			wrapK: [cfg.tbl_edges ? "| " : "", cfg.tbl_edges ? " |" : ""],
+			wrapK: [cfg.tbl_edges ? "| " : "", cfg.tbl_edges ? " |" : ""]
 		}) : lib.ctblk.extend();
 
 		lib.th = cfg.gfm_tbls ? lib.inl.extend({
@@ -611,7 +614,7 @@ reMarked = function(opts) {
 				col.w = Math.max(col.w || 0, this.guts.length);
 				if (this.e.align)
 					col.a = this.e.align;
-			},
+			}
 		}) : lib.ctblk.extend();
 
 			lib.td = lib.th.extend();
@@ -619,7 +622,7 @@ reMarked = function(opts) {
 		lib.txt = lib.inl.extend({
 			initK: function()
 			{
-				this.c = this.e.textContent.split(/^/gm);
+				this.c = this.e[ieLte9 ? "innerText" : "textContent"].split(/^/gm);
 			},
 			rendK: function()
 			{
