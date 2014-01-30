@@ -624,7 +624,7 @@ reMarked = function(opts) {
 		lib.txt = lib.inl.extend({
 			initK: function()
 			{
-				this.c = this.e[ieLte9 ? "innerText" : "textContent"].split(/^/gm);
+				this.c = this.e.textContent.split(/^/gm);
 			},
 			rendK: function()
 			{
