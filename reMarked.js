@@ -50,7 +50,11 @@ reMarked = function(opts) {
 	};
 
 	// detect and tweak some stuff for IE 7 & 8
-	var ieLte9 = document.documentMode && document.documentMode < 9;
+	// http://www.pinlady.net/PluginDetect/IE/
+	var isIE = eval("/*@cc_on!@*/!1"),
+		docMode = document.documentMode,
+		ieLt9 = isIE && (!docMode || docMode < 9),
+		textContProp = ieLt9 ? "innerText" : "textContent";
 
 	extend(cfg, opts);
 
@@ -220,7 +224,7 @@ reMarked = function(opts) {
 
 							while (i++ < len) {
 								hcell = document.createElement("th");
-								hcell[ieLte9 ? "innerText" : "textContent"] = cfg.col_pre + i;
+								hcell[textContProp] = cfg.col_pre + i;
 								hrow.appendChild(hcell);
 							}
 						}
@@ -244,7 +248,7 @@ reMarked = function(opts) {
 						continue;
 
 					// empty whitespace handling
-					if (name == "txt" && /^\s+$/.test(n[ieLte9 ? "innerText" : "textContent"])) {
+					if (name == "txt" && /^\s+$/.test(n[textContProp])) {
 						// ignore if first or last child (trim)
 						if (i == 0 || i == this.e.childNodes.length - 1)
 							continue;
