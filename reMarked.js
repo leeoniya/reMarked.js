@@ -366,7 +366,10 @@ reMarked = function(opts) {
 	lib.inl = lib.tag.extend({
 		rend: function()
 		{
-			return wrap.call(this, this.rendK(), this.wrap);
+			var kids = this.rendK(),
+				parts = kids.match(/^([ \t]*)(.*?)([ \t]*)$/) || [kids, "", kids, ""];
+
+			return parts[1] + wrap.call(this, parts[2], this.wrap) + parts[3];
 		}
 	});
 
