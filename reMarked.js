@@ -248,7 +248,7 @@ reMarked = function(opts) {
 						continue;
 
 					// empty whitespace handling
-					if (name == "txt" && /^\s+$/.test(n[textContProp])) {
+					if (name == "txt" && !nodeName(this.e).match(inlRe) && /^\s+$/.test(n[textContProp])) {
 						// ignore if first or last child (trim)
 						if (i == 0 || i == this.e.childNodes.length - 1)
 							continue;
