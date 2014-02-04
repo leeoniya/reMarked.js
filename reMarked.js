@@ -28,6 +28,7 @@ reMarked = function(opts) {
 		hash_lnks:	false,			// anchors w/hash hrefs as links
 		br_only:	false,			// avoid using "  " as line break indicator
 		col_pre:	"col ",			// column prefix to use when creating missing headers for tables
+		eat_empty:	false,			// kill tags that have no content in them
 	//	comp_style: false,			// use getComputedStyle instead of hardcoded tag list to discern block/inline
 		unsup_tags: {				// handling of unsupported tags, defined in terms of desired output style. if not listed, output = outerHTML
 			// no output
@@ -337,7 +338,17 @@ reMarked = function(opts) {
 
 		rend: function()
 		{
-			return wrap.call(this, (this.tagr ? otag(this.tag, this.e) : "") + wrap.call(this, pfxLines(pfxLines(this.rendK(), this.lnPfx), rep(" ", this.lnInd)), this.wrapK) + (this.tagr ? ctag(this.tag) : ""), this.wrap);
+			var kids = this.rendK(),
+				emptyKids = (/^\s*$/gm).test(kids),
+				noWrap = cfg.eat_empty && emptyKids;
+
+			var wrapWith = noWrap ? "" : this.wrap,
+				wrapTags = [
+					noWrap || !this.tagr ? "" : otag(this.tag, this.e),
+					noWrap || !this.tagr ? "" : ctag(this.tag, this.e)
+				];
+
+			return wrap.call(this, wrapTags[0] + wrap.call(this, pfxLines(pfxLines(kids, this.lnPfx), rep(" ", this.lnInd)), this.wrapK) + wrapTags[1], wrapWith);
 		},
 
 		rendK: function()
