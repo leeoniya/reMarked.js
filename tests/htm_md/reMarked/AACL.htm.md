@@ -219,7 +219,7 @@ All checking is done using `AACL::check()` described below:
     The AACL_Resource being requested. `check()` will attempt to get the current action from the resource automatically
     using `$reource->acl_actions(TRUE)`. If this returns a string action then that action will be used for checking without having to specify the `$action` parameter.
 
-    Note that the string resource ID can't be specified since the `check()` function requires access to the objects acl_\* methods. It
+    Note that the string resource ID can't be specified since the `check()` function requires access to the objects acl_* methods. It
     is simpler not to have to define mappings from id back to class name in some separate global class in order to create instances.
     If I think of a way to make this neat and relatively seemless I may implement it but I don't feel this is a big issue.
 

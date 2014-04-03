@@ -28,6 +28,9 @@ reMarked = function(opts) {
 		hash_lnks:	false,			// anchors w/hash hrefs as links
 		br_only:	false,			// avoid using "  " as line break indicator
 		col_pre:	"col ",			// column prefix to use when creating missing headers for tables
+		nbsp_spc:	false,			// convert &nbsp; entities in html to regular spaces
+		span_tags:	true,			// output spans (ambiguous) using html tags
+		div_tags:	true,			// output divs (ambiguous) using html tags
 	//	comp_style: false,			// use getComputedStyle instead of hardcoded tag list to discern block/inline
 		unsup_tags: {				// handling of unsupported tags, defined in terms of desired output style. if not listed, output = outerHTML
 			// no output
@@ -265,10 +268,18 @@ reMarked = function(opts) {
 					if (!lib[name]) {
 						var unsup = cfg.unsup_tags;
 
-						if (unsup.inline.test(name))
-							name = "tinl";
-						else if (unsup.block2.test(name))
-							name = "tblk";
+						if (unsup.inline.test(name)) {
+							if (name == "span" && !cfg.span_tags)
+								name = "inl";
+							else
+								name = "tinl";
+						}
+						else if (unsup.block2.test(name)) {
+							if (name == "div" && !cfg.div_tags)
+								name = "blk";
+							else
+								name = "tblk";
+						}
 						else if (unsup.block1c.test(name))
 							name = "ctblk";
 						else if (unsup.block2c.test(name)) {
@@ -640,8 +651,9 @@ reMarked = function(opts) {
 				// this is strange, cause inside of code, inline should not be processed, but is?
 				if (!(this.p instanceof lib.code || this.p instanceof lib.pre)) {
 					kids = kids
-					.replace(/^\s*#/gm,"\\#")
-					.replace(/\*/gm,"\\*");
+					.replace(/^\s*([#*])/gm, function(match, $1) {
+						return match.replace($1, "\\" + $1);
+					});
 				}
 
 				if (this.i == 0)
@@ -649,7 +661,7 @@ reMarked = function(opts) {
 				if (this.i == this.p.c.length - 1)
 					kids = kids.replace(/\n+$/, "");
 
-				return kids;
+				return cfg.nbsp_spc ? kids.replace(/\u00a0/g, "&nbsp;") : kids;
 			}
 		});
 
