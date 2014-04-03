@@ -661,7 +661,7 @@ reMarked = function(opts) {
 				if (this.i == this.p.c.length - 1)
 					kids = kids.replace(/\n+$/, "");
 
-				return cfg.nbsp_spc ? kids.replace(/\u00a0/g, "&nbsp;") : kids;
+				return kids.replace(/\u00a0/gm, cfg.nbsp_spc ? " " : "&nbsp;");
 			}
 		});
 
