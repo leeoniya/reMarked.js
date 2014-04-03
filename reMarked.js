@@ -378,7 +378,7 @@ reMarked = function(opts) {
 		rend: function()
 		{
 			var kids = this.rendK(),
-				parts = kids.match(/^([ \t]*)(.*?)([ \t]*)$/) || [kids, "", kids, ""];
+				parts = kids.match(/^((?: |\t|&nbsp;)*)(.*?)((?: |\t|&nbsp;)*)$/) || [kids, "", kids, ""];
 
 			return parts[1] + wrap.call(this, parts[2], this.wrap) + parts[3];
 		}
