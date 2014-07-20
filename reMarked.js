@@ -57,7 +57,7 @@ reMarked = function(opts) {
 	var isIE = eval("/*@cc_on!@*/!1"),
 		docMode = document.documentMode,
 		ieLt9 = isIE && (!docMode || docMode < 9),
-		textContProp = ieLt9 ? "innerText" : "textContent";
+		textContProp = "textContent" in Element.prototype || !ieLt9 ? "textContent" : "innerText";
 
 	extend(cfg, opts);
 
