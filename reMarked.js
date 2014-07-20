@@ -467,7 +467,7 @@ reMarked = function(opts) {
 					href = this.e.getAttribute("href"),
 					title = this.e.title ? ' "' + this.e.title + '"' : "";
 
-				if (!href || href == kids || href[0] == "#" && !cfg.hash_lnks)
+				if (!this.e.hasAttribute("href") || href == kids || href[0] == "#" && !cfg.hash_lnks)
 					return kids;
 
 				if (cfg.link_list)

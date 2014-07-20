@@ -17,5 +17,6 @@ var list = [
 	"TaskList",
 	"tables",
 	"tables2",
-	"inline-whitespace"
+	"inline-whitespace",
+	"empty_href"
 ];
