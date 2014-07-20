@@ -399,7 +399,6 @@ reMarked = function(opts) {
 		});
 
 		lib.list = lib.blk.extend({
-			expn: false,
 			wrap: [function(){return this.p instanceof lib.li ? "\n" : "\n\n";}, ""]
 		});
 
@@ -409,7 +408,7 @@ reMarked = function(opts) {
 
 		lib.li = lib.cblk.extend({
 			wrap: ["\n", function(kids) {
-				return this.p.expn || kids.match(/\n{2}/gm) ? "\n" : "";			// || this.kids.match(\n)
+				return (this.c[0] && this.c[0] instanceof(lib.p)) || kids.match(/\n{2}/gm) ? "\n" : "";			// || this.kids.match(\n)
 			}],
 			wrapK: [function() {
 				return this.p.tag == "ul" ? cfg.li_bullet + " " : (this.i + 1) + ".  ";
