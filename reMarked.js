@@ -15,7 +15,8 @@ reMarked = function(opts) {
 		h2_setext:	true,			// underline h2 headers
 		h_atx_suf:	false,			// header suffixes (###)
 	//	h_compact:	true,			// compact headers (except h1)
-		gfm_code:	false,			// gfm code blocks (```)
+		gfm_code:	true,			// gfm code blocks (```)
+		trim_code:	true,			// trim whitespace within <pre><code> blocks (full block, not per line)
 		li_bullet:	"*-+"[0],		// list item bullet style
 	//	list_indnt:					// indent top-level lists
 		hr_char:	"-_*"[0],		// hr style
@@ -550,6 +551,14 @@ reMarked = function(opts) {
 						this.p.lnInd = 4;
 					}
 				}
+			},
+			rendK: function() {
+				if (this.p instanceof lib.pre) {
+					var kids = this.e[textContProp];
+					return cfg.trim_code ? kids.trim() : kids;
+				}
+
+				return this.supr();
 			}
 		});
 
@@ -641,7 +650,7 @@ reMarked = function(opts) {
 		lib.txt = lib.inl.extend({
 			initK: function()
 			{
-				this.c = this.e.textContent.split(/^/gm);
+				this.c = this.e[textContProp].split(/^/gm);
 			},
 			rendK: function()
 			{
