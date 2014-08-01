@@ -157,13 +157,19 @@ reMarked = function(opts) {
 	this.render = function(ctr) {
 		links = [];
 
-		if (typeof ctr == "string") {
-			var htmlstr = ctr;
-			ctr = document.createElement("div");
-			ctr.innerHTML = htmlstr;
+		if (ctr === document.body)
+			var holder = ctr;
+		else {
+			var holder = document.createElement("div");
+
+			if (typeof ctr == "string")
+				holder.innerHTML = ctr;
+			else
+				holder.appendChild(ctr);
 		}
-		var s = new lib.tag(ctr, null, 0);
-		var re = s.rend().replace(/^[\t ]+\n/gm, "\n");
+
+		var s = new lib.tag(holder, null, 0);
+		var re = s.rend().replace(/^[\t ]+[\n\r]+/gm, "\n").replace(/^[\n\r]+|[\n\r]+$/g, "");
 		if (cfg.link_list && links.length > 0) {
 			// hack
 			re += "\n\n";
