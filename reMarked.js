@@ -157,16 +157,9 @@ reMarked = function(opts) {
 	this.render = function(ctr) {
 		links = [];
 
-		if (ctr === document.body)
-			var holder = ctr;
-		else {
-			var holder = document.createElement("div");
+		var holder = document.createElement("div");
 
-			if (typeof ctr == "string")
-				holder.innerHTML = ctr;
-			else
-				holder.appendChild(ctr);
-		}
+		holder.innerHTML = typeof ctr == "string" ? ctr : outerHTML(ctr);
 
 		var s = new lib.tag(holder, null, 0);
 		var re = s.rend().replace(/^[\t ]+[\n\r]+/gm, "\n").replace(/^[\n\r]+|[\n\r]+$/g, "");
