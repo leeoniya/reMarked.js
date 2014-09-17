@@ -15,7 +15,8 @@ reMarked = function(opts) {
 		h2_setext:	true,			// underline h2 headers
 		h_atx_suf:	false,			// header suffixes (###)
 	//	h_compact:	true,			// compact headers (except h1)
-		gfm_code:	false,			// gfm code blocks (```)
+		gfm_code:	true,			// gfm code blocks (```)
+		trim_code:	true,			// trim whitespace within <pre><code> blocks (full block, not per line)
 		li_bullet:	"*-+"[0],		// list item bullet style
 	//	list_indnt:					// indent top-level lists
 		hr_char:	"-_*"[0],		// hr style
@@ -57,7 +58,7 @@ reMarked = function(opts) {
 	var isIE = eval("/*@cc_on!@*/!1"),
 		docMode = document.documentMode,
 		ieLt9 = isIE && (!docMode || docMode < 9),
-		textContProp = ieLt9 ? "innerText" : "textContent";
+		textContProp = "textContent" in Element.prototype || !ieLt9 ? "textContent" : "innerText";
 
 	extend(cfg, opts);
 
@@ -156,13 +157,12 @@ reMarked = function(opts) {
 	this.render = function(ctr) {
 		links = [];
 
-		if (typeof ctr == "string") {
-			var htmlstr = ctr;
-			ctr = document.createElement("div");
-			ctr.innerHTML = htmlstr;
-		}
-		var s = new lib.tag(ctr, null, 0);
-		var re = s.rend().replace(/^[\t ]+\n/gm, "\n");
+		var holder = document.createElement("div");
+
+		holder.innerHTML = typeof ctr == "string" ? ctr : outerHTML(ctr);
+
+		var s = new lib.tag(holder, null, 0);
+		var re = s.rend().replace(/^[\t ]+[\n\r]+/gm, "\n").replace(/^[\n\r]+|[\n\r]+$/g, "");
 		if (cfg.link_list && links.length > 0) {
 			// hack
 			re += "\n\n";
@@ -399,7 +399,6 @@ reMarked = function(opts) {
 		});
 
 		lib.list = lib.blk.extend({
-			expn: false,
 			wrap: [function(){return this.p instanceof lib.li ? "\n" : "\n\n";}, ""]
 		});
 
@@ -409,7 +408,7 @@ reMarked = function(opts) {
 
 		lib.li = lib.cblk.extend({
 			wrap: ["\n", function(kids) {
-				return this.p.expn || kids.match(/\n{2}/gm) ? "\n" : "";			// || this.kids.match(\n)
+				return (this.c[0] && this.c[0] instanceof(lib.p)) || kids.match(/\n{2}/gm) ? "\n" : "";			// || this.kids.match(\n)
 			}],
 			wrapK: [function() {
 				return this.p.tag == "ul" ? cfg.li_bullet + " " : (this.i + 1) + ".  ";
@@ -468,7 +467,7 @@ reMarked = function(opts) {
 					href = this.e.getAttribute("href"),
 					title = this.e.title ? ' "' + this.e.title + '"' : "";
 
-				if (!href || href == kids || href[0] == "#" && !cfg.hash_lnks)
+				if (!this.e.hasAttribute("href") || href == kids || href[0] == "#" && !cfg.hash_lnks)
 					return kids;
 
 				if (cfg.link_list)
@@ -551,6 +550,14 @@ reMarked = function(opts) {
 						this.p.lnInd = 4;
 					}
 				}
+			},
+			rendK: function() {
+				if (this.p instanceof lib.pre) {
+					var kids = this.e[textContProp];
+					return cfg.trim_code ? kids.trim() : kids;
+				}
+
+				return this.supr();
 			}
 		});
 
@@ -642,7 +649,7 @@ reMarked = function(opts) {
 		lib.txt = lib.inl.extend({
 			initK: function()
 			{
-				this.c = this.e.textContent.split(/^/gm);
+				this.c = this.e[textContProp].split(/^/gm);
 			},
 			rendK: function()
 			{
@@ -684,6 +691,6 @@ reMarked = function(opts) {
 /*!
   * klass: a classical JS OOP façade
   * https://github.com/ded/klass
-  * License MIT (c) Dustin Diaz & Jacob Thornton 2012
+  * License MIT (c) Dustin Diaz 2014
   */
-!function(a,b){typeof define=="function"?define(b):typeof module!="undefined"?module.exports=b():this[a]=b()}("klass",function(){function f(a){return j.call(g(a)?a:function(){},a,1)}function g(a){return typeof a===c}function h(a,b,c){return function(){var d=this.supr;this.supr=c[e][a];var f=b.apply(this,arguments);return this.supr=d,f}}function i(a,b,c){for(var f in b)b.hasOwnProperty(f)&&(a[f]=g(b[f])&&g(c[e][f])&&d.test(b[f])?h(f,b[f],c):b[f])}function j(a,b){function c(){}function l(){this.init?this.init.apply(this,arguments):(b||h&&d.apply(this,arguments),j.apply(this,arguments))}c[e]=this[e];var d=this,f=new c,h=g(a),j=h?a:this,k=h?{}:a;return l.methods=function(a){return i(f,a,d),l[e]=f,this},l.methods.call(l,k).prototype.constructor=l,l.extend=arguments.callee,l[e].implement=l.statics=function(a,b){return a=typeof a=="string"?function(){var c={};return c[a]=b,c}():a,i(this,a,d),this},l}var a=this,b=a.klass,c="function",d=/xyz/.test(function(){xyz})?/\bsupr\b/:/.*/,e="prototype";return f.noConflict=function(){return a.klass=b,this},a.klass=f,f});
+!function(e,t,n){typeof define=="function"?define(n):typeof module!="undefined"?module.exports=n():t[e]=n()}("klass",this,function(){function i(e){return a.call(s(e)?e:function(){},e,1)}function s(e){return typeof e===t}function o(e,t,n){return function(){var i=this.supr;this.supr=n[r][e];var s={}.fabricatedUndefined,o=s;try{o=t.apply(this,arguments)}finally{this.supr=i}return o}}function u(e,t,i){for(var u in t)t.hasOwnProperty(u)&&(e[u]=s(t[u])&&s(i[r][u])&&n.test(t[u])?o(u,t[u],i):t[u])}function a(e,t){function n(){}function c(){this.init?this.init.apply(this,arguments):(t||a&&i.apply(this,arguments),f.apply(this,arguments))}n[r]=this[r];var i=this,o=new n,a=s(e),f=a?e:this,l=a?{}:e;return c.methods=function(e){return u(o,e,i),c[r]=o,this},c.methods.call(c,l).prototype.constructor=c,c.extend=arguments.callee,c[r].implement=c.statics=function(e,t){return e=typeof e=="string"?function(){var n={};return n[e]=t,n}():e,u(this,e,i),this},c}var e=this,t="function",n=/xyz/.test(function(){xyz})?/\bsupr\b/:/.*/,r="prototype";return i})
