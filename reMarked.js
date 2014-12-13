@@ -15,7 +15,7 @@ reMarked = function(opts) {
 		h2_setext:	true,			// underline h2 headers
 		h_atx_suf:	false,			// header suffixes (###)
 	//	h_compact:	true,			// compact headers (except h1)
-		gfm_code:	true,			// gfm code blocks (```)
+		gfm_code:	["```","~~~"][0],	// gfm code blocks
 		trim_code:	true,			// trim whitespace within <pre><code> blocks (full block, not per line)
 		li_bullet:	"*-+"[0],		// list item bullet style
 	//	list_indnt:					// indent top-level lists
@@ -543,7 +543,7 @@ reMarked = function(opts) {
 						if (cls.indexOf("lang-") === 0)			// marked uses "lang-" prefix now
 							cls = cls.substr(5);
 
-						this.wrapK = ["```" + cls + "\n", "\n```"];
+						this.wrapK = [cfg.gfm_code + cls + "\n", "\n" + cfg.gfm_code];
 					}
 					else {
 						this.wrapK = "";
